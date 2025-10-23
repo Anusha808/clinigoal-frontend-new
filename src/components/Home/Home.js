@@ -4,6 +4,8 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import "./Home.css";
 import { useNavigate } from "react-router-dom";
+import TestAPIButton from "../../TestAPIButton";
+
 
 const Home = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -235,6 +237,9 @@ const Home = () => {
           <button className="btn-primary">Send Message</button>
         </form>
       </section>
+
+
+<TestAPIButton />
 
       {/* ===== FOOTER ===== */}
       <footer className="footer">
