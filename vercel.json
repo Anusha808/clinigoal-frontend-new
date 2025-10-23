@@ -4,11 +4,6 @@
     { "src": "package.json", "use": "@vercel/static-build" }
   ],
   "routes": [
-    { "src": "/manifest.json", "dest": "/manifest.json" },
-    { "src": "/favicon.ico", "dest": "/favicon.ico" },
-    { "src": "/logo192.png", "dest": "/logo192.png" },
-    { "src": "/logo512.png", "dest": "/logo512.png" },
-    { "src": "/apple-touch-icon.png", "dest": "/apple-touch-icon.png" },
     { "src": "/static/(.*)", "dest": "/static/$1" },
     { "src": "/(.*)", "dest": "/index.html" }
   ],
