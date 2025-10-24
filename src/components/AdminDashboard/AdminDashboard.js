@@ -32,13 +32,13 @@ const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
 
-  // ✅ Logout function
+  // Logout function
   const handleLogout = () => {
     alert("You have been logged out successfully!");
     navigate("/"); // Redirect to home
   };
 
-  // ✅ Render tab content dynamically
+  // Render tab content dynamically
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
@@ -66,7 +66,7 @@ const AdminDashboard = () => {
     }
   };
 
-  // ✅ Sidebar Navigation Items
+  // Sidebar Navigation Items
   const navItems = [
     { id: "dashboard", icon: <FaTachometerAlt />, label: "Dashboard" },
     { id: "users", icon: <FaUsers />, label: "Users" },
@@ -82,7 +82,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
-      {/* 🧭 Sidebar */}
+      {/* Sidebar */}
       <motion.aside
         className={`sidebar ${sidebarOpen ? "open" : "closed"}`}
         initial={{ width: 0 }}
@@ -112,7 +112,7 @@ const AdminDashboard = () => {
             </button>
           ))}
 
-          {/* 🔒 Logout */}
+          {/* Logout */}
           <button className="logout-btn" onClick={handleLogout}>
             <FaSignOutAlt />
             {sidebarOpen && <span>Logout</span>}
@@ -120,7 +120,7 @@ const AdminDashboard = () => {
         </div>
       </motion.aside>
 
-      {/* 🧾 Main Dashboard Content */}
+      {/* Main Dashboard Content */}
       <motion.div
         key={activeTab}
         className="dashboard-content"

@@ -10,7 +10,6 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import API_BASE_URL from "../../api";
-import logo from "../../assets/logo.png"; // ✅ Import your logo
 import "./DashboardOverview.css";
 
 const DashboardOverview = () => {
@@ -71,15 +70,18 @@ const DashboardOverview = () => {
 
   return (
     <div className="overview-container">
-      {/* 🔹 Top Bar with Logo */}
+      {/* Top Bar */}
       <div className="overview-topbar">
         <h2 className="overview-title">📊 Dashboard Overview</h2>
-        <img
-          src={logo}
-          alt="Logo"
+        {/* Simple Home Icon instead of missing logo */}
+        <div
           className="overview-logo"
-          onClick={() => navigate("/home")} // ✅ Navigate to Home.js
-        />
+          style={{ cursor: "pointer", fontSize: "24px" }}
+          onClick={() => navigate("/home")}
+          title="Go Home"
+        >
+          🏠
+        </div>
       </div>
 
       <motion.div
@@ -99,7 +101,10 @@ const DashboardOverview = () => {
           <motion.div
             key={index}
             className="overview-card"
-            style={{ background: card.color, cursor: card.onClick ? "pointer" : "default" }}
+            style={{
+              background: card.color,
+              cursor: card.onClick ? "pointer" : "default",
+            }}
             whileHover={{ scale: 1.05, rotate: 1 }}
             transition={{ type: "spring", stiffness: 200 }}
             onClick={card.onClick ? card.onClick : undefined}
