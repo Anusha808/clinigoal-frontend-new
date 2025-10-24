@@ -1,14 +1,17 @@
+// UserLogin.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom"; // ✅ Navigation
+import { useNavigate } from "react-router-dom";
 import "./UserLogin.css";
 
+// ✅ Set backend URL dynamically
 const API_BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:5000/api"
     : "https://clinigoal-server-side.onrender.com/api";
 
+// Background images for slider
 const images = [
   "https://images.pexels.com/photos/7251050/pexels-photo-7251050.jpeg",
   "https://images.pexels.com/photos/7723391/pexels-photo-7723391.jpeg",
@@ -17,20 +20,20 @@ const images = [
 ];
 
 const UserLogin = () => {
-  const navigate = useNavigate(); // ✅ for redirecting after login
+  const navigate = useNavigate();
 
-  const [formType, setFormType] = useState("login");
+  const [formType, setFormType] = useState("login"); // login | register | forgot
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
   });
   const [message, setMessage] = useState("");
-  const [type, setType] = useState("success");
+  const [type, setType] = useState("success"); // success | error
   const [loading, setLoading] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
 
-  // ✅ Smooth background image slider
+  // 🌄 Background slider
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % images.length);
@@ -38,10 +41,12 @@ const UserLogin = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Input handler
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Form submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
@@ -49,20 +54,30 @@ const UserLogin = () => {
 
     try {
       if (formType === "login") {
-        const res = await axios.post(`${API_BASE_URL}/users/login`, formData);
+        // Login API call
+        const res = await axios.post(`${API_BASE_URL}/users/login`, {
+          email: formData.email,
+          password: formData.password,
+        });
+
+        // ✅ Save token and user info
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+
         setMessage("✅ Login successful!");
         setType("success");
 
-        // ✅ Redirect after successful login
-        setTimeout(() => {
-          navigate("/user-dashboard", { replace: true });
-        }, 1000);
+        // Navigate to dashboard immediately
+        navigate("/user-dashboard", { replace: true });
       } else if (formType === "register") {
+        // Register API call
         await axios.post(`${API_BASE_URL}/users/register`, formData);
-        setMessage("🎉 Registration successful! You can now login.");
+        setMessage("🎉 Registration successful! Please login.");
         setType("success");
         setFormType("login");
+        setFormData({ name: "", email: "", password: "" });
       } else if (formType === "forgot") {
+        // Forgot password API call
         await axios.post(`${API_BASE_URL}/users/forgot-password`, {
           email: formData.email,
         });
@@ -70,7 +85,7 @@ const UserLogin = () => {
         setType("success");
       }
     } catch (err) {
-      setMessage(err.response?.data?.message || "Something went wrong.");
+      setMessage(err.response?.data?.message || "❌ Something went wrong.");
       setType("error");
     } finally {
       setLoading(false);
@@ -79,7 +94,7 @@ const UserLogin = () => {
 
   return (
     <div className="user-login-page">
-      {/* 🌄 Left Side Image Section */}
+      {/* Left Image Section */}
       <div className="login-image-section">
         {images.map((img, index) => (
           <img
@@ -109,7 +124,7 @@ const UserLogin = () => {
         </div>
       </div>
 
-      {/* 🧾 Right Form Section */}
+      {/* Right Form Section */}
       <div className="user-login-container">
         <AnimatePresence mode="wait">
           <motion.div
@@ -170,11 +185,7 @@ const UserLogin = () => {
               )}
 
               {message && (
-                <p
-                  className={`message ${
-                    type === "error" ? "error" : "success"
-                  }`}
-                >
+                <p className={`message ${type === "error" ? "error" : "success"}`}>
                   {message}
                 </p>
               )}
@@ -195,20 +206,16 @@ const UserLogin = () => {
               </motion.button>
             </form>
 
-            {/* 🔗 Links */}
+            {/* Links */}
             <div className="form-links">
               {formType === "login" && (
                 <>
                   <p>
                     Don’t have an account?{" "}
-                    <span onClick={() => setFormType("register")}>
-                      Register
-                    </span>
+                    <span onClick={() => setFormType("register")}>Register</span>
                   </p>
                   <p>
-                    <span onClick={() => setFormType("forgot")}>
-                      Forgot Password?
-                    </span>
+                    <span onClick={() => setFormType("forgot")}>Forgot Password?</span>
                   </p>
                 </>
               )}
@@ -220,8 +227,7 @@ const UserLogin = () => {
               )}
               {formType === "forgot" && (
                 <p>
-                  Back to{" "}
-                  <span onClick={() => setFormType("login")}>Login</span>
+                  Back to <span onClick={() => setFormType("login")}>Login</span>
                 </p>
               )}
             </div>

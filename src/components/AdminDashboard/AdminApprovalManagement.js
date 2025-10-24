@@ -1,5 +1,6 @@
+// AdminApprovalManagement.js
 import React, { useState, useEffect, useRef } from "react";
-import API from "../../api"; // ✅ Use centralized axios instance
+import API from "../../api"; // ✅ Centralized axios instance
 import "./AdminApprovalManagement.css";
 
 const AdminApprovalManagement = () => {
@@ -15,7 +16,7 @@ const AdminApprovalManagement = () => {
       if (!isAutoRefresh) setLoading(true);
       else setRefreshing(true);
 
-      const { data } = await API.get("/api/enrollments"); // ✅ Uses .env base URL
+      const { data } = await API.get("/api/enrollments");
       const currentApprovals = Array.isArray(data.enrollments)
         ? data.enrollments
         : [];
@@ -104,6 +105,7 @@ const AdminApprovalManagement = () => {
       <div className="page-header">
         <h2 className="page-title">📋 Enrollment Approvals</h2>
         <button
+          type="button"
           onClick={() => fetchApprovals()}
           className="refresh-btn"
           disabled={refreshing}
@@ -115,7 +117,7 @@ const AdminApprovalManagement = () => {
       {error && (
         <div className="error-message">
           <p>⚠️ {error}</p>
-          <button onClick={() => fetchApprovals()} className="retry-btn">
+          <button type="button" onClick={() => fetchApprovals()} className="retry-btn">
             Retry
           </button>
         </div>
@@ -143,15 +145,11 @@ const AdminApprovalManagement = () => {
               {approvals.map((a) => (
                 <tr
                   key={a._id}
-                  className={`${
-                    newEnrollmentIds.has(a._id) ? "new-enrollment" : ""
-                  }`}
+                  className={`${newEnrollmentIds.has(a._id) ? "new-enrollment" : ""}`}
                 >
                   <td>
                     {a.userName || "Unknown"}
-                    {newEnrollmentIds.has(a._id) && (
-                      <span className="new-badge">NEW</span>
-                    )}
+                    {newEnrollmentIds.has(a._id) && <span className="new-badge">NEW</span>}
                   </td>
                   <td>{a.courseTitle || "Untitled"}</td>
                   <td>{a.paymentId || "N/A"}</td>
@@ -168,12 +166,14 @@ const AdminApprovalManagement = () => {
                       {a.status === "pending" && (
                         <>
                           <button
+                            type="button"
                             className="approve-btn"
                             onClick={() => handleApprove(a._id)}
                           >
                             Approve
                           </button>
                           <button
+                            type="button"
                             className="reject-btn"
                             onClick={() => handleReject(a._id)}
                           >
@@ -183,6 +183,7 @@ const AdminApprovalManagement = () => {
                       )}
                       {a.status === "approved" && (
                         <button
+                          type="button"
                           className="revoke-btn"
                           onClick={() => handleRevoke(a._id)}
                         >
@@ -191,6 +192,7 @@ const AdminApprovalManagement = () => {
                       )}
                       {a.status === "rejected" && (
                         <button
+                          type="button"
                           className="revoke-btn"
                           onClick={() => handleRevoke(a._id)}
                         >

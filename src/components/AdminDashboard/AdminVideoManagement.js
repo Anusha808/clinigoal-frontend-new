@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { motion } from "framer-motion";
+import { FaFileUpload, FaEdit, FaTrash, FaEye, FaFilm } from "react-icons/fa";
 import "./AdminVideoManagement.css";
 
-// ✅ Use deployed backend URL
-const API_BASE = "https://clinigoal-backend.onrender.com/api/videos";
+// ✅ Dynamic API URL depending on environment
+const API_BASE_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:5000/api/videos"
+    : "https://clinigoal-backend.onrender.com/api/videos";
 
 const AdminVideoManagement = () => {
   const [videos, setVideos] = useState([]);
@@ -19,8 +24,10 @@ const AdminVideoManagement = () => {
   // ✅ Fetch all videos
   const fetchVideos = async () => {
     try {
-      const res = await axios.get(API_BASE);
-      setVideos(res.data.videos || []);
+      setLoading(true);
+      const res = await axios.get(API_BASE_URL);
+      const data = res.data.videos || res.data || [];
+      setVideos(Array.isArray(data) ? data : []);
     } catch (err) {
       Swal.fire({
         icon: "error",
@@ -28,6 +35,8 @@ const AdminVideoManagement = () => {
         text: "Please check your server connection.",
         confirmButtonColor: "#007bff",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,7 +44,7 @@ const AdminVideoManagement = () => {
     fetchVideos();
   }, []);
 
-  // ✅ Upload or Update video
+  // ✅ Upload or update video
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -53,25 +62,32 @@ const AdminVideoManagement = () => {
     setUploadProgress(0);
 
     try {
-      const res = editVideo
-        ? await axios.put(`${API_BASE}/${editVideo._id}`, {
-            title,
-            courseName,
-          })
-        : await axios.post(`${API_BASE}/upload`, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-            onUploadProgress: (event) => {
-              const progress = Math.round((event.loaded * 100) / event.total);
-              setUploadProgress(progress);
-            },
-          });
-
-      Swal.fire({
-        icon: "success",
-        title: editVideo ? "Video updated successfully!" : "Video uploaded!",
-        showConfirmButton: false,
-        timer: 1500,
-      });
+      if (editVideo) {
+        await axios.put(`${API_BASE_URL}/${editVideo._id}`, {
+          title,
+          courseName,
+        });
+        Swal.fire({
+          icon: "success",
+          title: "Video updated successfully!",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      } else {
+        await axios.post(`${API_BASE_URL}/upload`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+          onUploadProgress: (event) => {
+            const progress = Math.round((event.loaded * 100) / event.total);
+            setUploadProgress(progress);
+          },
+        });
+        Swal.fire({
+          icon: "success",
+          title: "Video uploaded successfully!",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
 
       setTitle("");
       setCourseName("");
@@ -93,7 +109,7 @@ const AdminVideoManagement = () => {
 
   // ✅ Delete video
   const handleDelete = async (id) => {
-    Swal.fire({
+    const result = await Swal.fire({
       title: "Are you sure?",
       text: "This video will be permanently deleted!",
       icon: "warning",
@@ -101,17 +117,17 @@ const AdminVideoManagement = () => {
       confirmButtonColor: "#dc3545",
       cancelButtonColor: "#6c757d",
       confirmButtonText: "Yes, delete it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await axios.delete(`${API_BASE}/${id}`);
-          setVideos(videos.filter((v) => v._id !== id));
-          Swal.fire("Deleted!", "The video has been removed.", "success");
-        } catch {
-          Swal.fire("Error", "Failed to delete the video.", "error");
-        }
-      }
     });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await axios.delete(`${API_BASE_URL}/${id}`);
+      Swal.fire("Deleted!", "The video has been removed.", "success");
+      fetchVideos();
+    } catch {
+      Swal.fire("❌ Error", "Failed to delete the video.", "error");
+    }
   };
 
   // ✅ Edit video
@@ -125,8 +141,18 @@ const AdminVideoManagement = () => {
       text: `You're editing "${video.title}"`,
       confirmButtonColor: "#007bff",
     });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // ✅ Preview video URL
+  const handlePreview = (video) => {
+    const url = video.videoPath.startsWith("http")
+      ? video.videoPath
+      : `${API_BASE_URL.replace("/videos", "")}/${video.videoPath.replace(/^\/?/, "")}`;
+    setPreviewVideo(url);
+  };
+
+  // ✅ Format file size
   const formatFileSize = (bytes) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -137,9 +163,21 @@ const AdminVideoManagement = () => {
 
   return (
     <div className="admin-video-management">
-      <h2>🎬 Video Management</h2>
+      <motion.h2
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <FaFilm className="icon" /> Video Management
+      </motion.h2>
 
-      <form onSubmit={handleSubmit} className="video-form">
+      <motion.form
+        className="video-form"
+        onSubmit={handleSubmit}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
         <div className="input-row">
           <div className="form-group">
             <label>Video Title</label>
@@ -182,9 +220,15 @@ const AdminVideoManagement = () => {
         </div>
 
         <div className="button-row">
-          <button type="submit" className="upload-btn" disabled={loading}>
-            {editVideo ? "💾 Update Video" : "⬆️ Upload Video"}
-          </button>
+          <motion.button
+            type="submit"
+            className="upload-btn"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            disabled={loading}
+          >
+            <FaFileUpload /> {editVideo ? "Update Video" : "Upload Video"}
+          </motion.button>
           {editVideo && (
             <button
               type="button"
@@ -193,9 +237,11 @@ const AdminVideoManagement = () => {
                 setEditVideo(null);
                 setTitle("");
                 setCourseName("");
+                setFile(null);
+                Swal.fire("❎ Edit Cancelled", "You are now in upload mode.", "info");
               }}
             >
-              ❌ Cancel
+              Cancel Edit
             </button>
           )}
         </div>
@@ -209,13 +255,13 @@ const AdminVideoManagement = () => {
             <span>{uploadProgress}%</span>
           </div>
         )}
-      </form>
+      </motion.form>
 
       <div className="video-table-container">
         <h3>📂 Uploaded Videos</h3>
-        {videos.length === 0 ? (
-          <p className="no-videos">No videos uploaded yet.</p>
-        ) : (
+        {loading ? (
+          <p>Loading videos...</p>
+        ) : videos.length > 0 ? (
           <table className="video-table">
             <thead>
               <tr>
@@ -227,42 +273,34 @@ const AdminVideoManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {videos.map((video) => (
-                <tr key={video._id}>
+              {videos.map((video, index) => (
+                <motion.tr
+                  key={video._id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
                   <td>{video.title}</td>
                   <td>{video.courseName}</td>
                   <td>{formatFileSize(video.fileSize)}</td>
                   <td>{new Date(video.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <div className="action-buttons">
-                      <button
-                        className="view-btn"
-                        onClick={() =>
-                          setPreviewVideo(
-                            `https://clinigoal-backend.onrender.com/${video.videoPath}`
-                          )
-                        }
-                      >
-                        ▶ View
-                      </button>
-                      <button
-                        className="edit-btn"
-                        onClick={() => handleEdit(video)}
-                      >
-                        ✏ Edit
-                      </button>
-                      <button
-                        className="delete-btn"
-                        onClick={() => handleDelete(video._id)}
-                      >
-                        🗑 Delete
-                      </button>
-                    </div>
+                  <td className="action-buttons">
+                    <button className="view-btn" onClick={() => handlePreview(video)}>
+                      <FaEye /> View
+                    </button>
+                    <button className="edit-btn" onClick={() => handleEdit(video)}>
+                      <FaEdit /> Edit
+                    </button>
+                    <button className="delete-btn" onClick={() => handleDelete(video._id)}>
+                      <FaTrash /> Delete
+                    </button>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
             </tbody>
           </table>
+        ) : (
+          <p className="no-videos">No videos uploaded yet.</p>
         )}
       </div>
 
