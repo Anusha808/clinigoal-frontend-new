@@ -370,8 +370,8 @@ const CertificateComponent = ({ course, userName, completedSections }) => {
           throw new Error("Failed to get 2D context from canvas.");
         }
         
-        canvas.width = 1200;
-        canvas.height = 850;
+        canvas.width = 500;
+        canvas.height = 350;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // --- Drawing Logic (same as before) ---
@@ -773,9 +773,15 @@ const UserDashboard = () => {
     return saved ? JSON.parse(saved) : { videos: false, notes: false, assignments: false, quiz: false };
   });
 
-  const [user] = useState({ _id: "user123", name: "Anusha Hegde" });
-  const backendURL = "http://localhost:5000";
+  const backendURL =
+  process.env.REACT_APP_API_BASE_URL || "https://clinigoal-backend.onrender.com/api";
 
+// ✅ User data (replace with real authenticated user)
+const [user] = useState(() => {
+  // For example, get from localStorage or auth context
+  const savedUser = localStorage.getItem("user");
+  return savedUser ? JSON.parse(savedUser) : { _id: "user123", name: "Anusha Hegde" };
+});
   // --- useEffect Hooks ---
 
   useEffect(() => {
@@ -1097,9 +1103,10 @@ const UserDashboard = () => {
               <>
                 <h3>📘 {activeCourse?.title} - Assignments</h3><br></br>
                 <AssignmentComponent onAssignmentComplete={() => {
-                  <br>markSectionComplete("assignments");</br>
-                  setActiveSection("quiz");
-                }} />
+                 markSectionComplete("assignments");
+                 setActiveSection("quiz");
+              }} />
+
               </> 
             ) : (
               <LockedContent section="Assignments" onBackToDashboard={() => setActiveSection("dashboard")} />

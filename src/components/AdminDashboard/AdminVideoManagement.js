@@ -1,9 +1,10 @@
+// AdminVideoManagement.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import "./AdminVideoManagement.css";
 
-// ✅ Use correct backend depending on environment
+// ✅ Backend URL auto-switch based on environment
 const API_BASE =
   window.location.hostname === "localhost"
     ? "http://localhost:5000/api/videos"
@@ -38,7 +39,7 @@ const AdminVideoManagement = () => {
     fetchVideos();
   }, []);
 
-  // ✅ Upload or Update video
+  // ✅ Upload or update video
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -57,10 +58,7 @@ const AdminVideoManagement = () => {
 
     try {
       const res = editVideo
-        ? await axios.put(`${API_BASE}/${editVideo._id}`, {
-            title,
-            courseName,
-          })
+        ? await axios.put(`${API_BASE}/${editVideo._id}`, { title, courseName })
         : await axios.post(`${API_BASE}/upload`, formData, {
             headers: { "Content-Type": "multipart/form-data" },
             onUploadProgress: (event) => {
@@ -130,6 +128,7 @@ const AdminVideoManagement = () => {
     });
   };
 
+  // ✅ Format file size
   const formatFileSize = (bytes) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -142,6 +141,7 @@ const AdminVideoManagement = () => {
     <div className="admin-video-management">
       <h2>🎬 Video Management</h2>
 
+      {/* Video Upload / Edit Form */}
       <form onSubmit={handleSubmit} className="video-form">
         <div className="input-row">
           <div className="form-group">
@@ -214,6 +214,7 @@ const AdminVideoManagement = () => {
         )}
       </form>
 
+      {/* Uploaded Videos Table */}
       <div className="video-table-container">
         <h3>📂 Uploaded Videos</h3>
         {videos.length === 0 ? (
@@ -271,6 +272,7 @@ const AdminVideoManagement = () => {
         )}
       </div>
 
+      {/* Video Preview Modal */}
       {previewVideo && (
         <div className="modal" onClick={() => setPreviewVideo(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>

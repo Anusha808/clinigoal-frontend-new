@@ -5,11 +5,11 @@ import { motion } from "framer-motion";
 import { FaFileUpload, FaEdit, FaTrash, FaEye, FaBook } from "react-icons/fa";
 import "./AdminNoteManagement.css";
 
-/* 🌐 Dynamic API URL */
+/* Dynamic API URL */
 const API_BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:5000/api"
-    : "https://clinigoal-backend.onrender.com/api"; // ✅ Updated backend
+    : "https://clinigoal-backend-yfu3.onrender.com/api";
 
 const AdminNoteManagement = () => {
   const [notes, setNotes] = useState([]);
@@ -18,7 +18,6 @@ const AdminNoteManagement = () => {
   const [loading, setLoading] = useState(false);
   const [editNote, setEditNote] = useState(null);
 
-  /* 🧭 Fetch notes on load */
   useEffect(() => {
     fetchNotes();
   }, []);
@@ -36,7 +35,6 @@ const AdminNoteManagement = () => {
     }
   };
 
-  /* 📤 Handle Upload or Update */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -50,14 +48,17 @@ const AdminNoteManagement = () => {
       return;
     }
 
-    // ✅ File validation
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
         Swal.fire("⚠️ File Too Large", "Max size is 10MB.", "warning");
         return;
       }
       if (!/\.(pdf|doc|docx|ppt|pptx)$/i.test(file.name)) {
-        Swal.fire("⚠️ Invalid File", "Only PDF, DOC, DOCX, PPT, PPTX allowed.", "warning");
+        Swal.fire(
+          "⚠️ Invalid File",
+          "Only PDF, DOC, DOCX, PPT, PPTX allowed.",
+          "warning"
+        );
         return;
       }
     }
@@ -73,7 +74,6 @@ const AdminNoteManagement = () => {
         await axios.put(`${API_BASE_URL}/notes/${editNote._id}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-
         Swal.fire({
           icon: "success",
           title: "✅ Note Updated",
@@ -85,7 +85,6 @@ const AdminNoteManagement = () => {
         await axios.post(`${API_BASE_URL}/notes/upload`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-
         Swal.fire({
           icon: "success",
           title: "✅ Note Uploaded",
@@ -94,7 +93,6 @@ const AdminNoteManagement = () => {
           timer: 1800,
         });
       }
-
       setForm({ title: "", courseName: "" });
       setFile(null);
       setEditNote(null);
@@ -106,7 +104,6 @@ const AdminNoteManagement = () => {
     }
   };
 
-  /* ✏️ Edit Mode */
   const handleEdit = (note) => {
     setEditNote(note);
     setForm({ title: note.title, courseName: note.courseName });
@@ -120,7 +117,6 @@ const AdminNoteManagement = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  /* 🗑️ Delete */
   const handleDelete = async (id) => {
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -143,7 +139,6 @@ const AdminNoteManagement = () => {
     }
   };
 
-  /* 👁️ View Note */
   const handleView = (note) => {
     const fileUrl = note.notePath.startsWith("http")
       ? note.notePath
@@ -173,7 +168,6 @@ const AdminNoteManagement = () => {
         <FaBook className="icon" /> Note Management
       </motion.h2>
 
-      {/* 🧾 Upload Form */}
       <motion.form
         className="note-form"
         onSubmit={handleSubmit}
@@ -224,8 +218,7 @@ const AdminNoteManagement = () => {
           whileTap={{ scale: 0.95 }}
           disabled={loading}
         >
-          <FaFileUpload />{" "}
-          {loading ? "Saving..." : editNote ? "Update Note" : "Upload Note"}
+          <FaFileUpload /> {loading ? "Saving..." : editNote ? "Update Note" : "Upload Note"}
         </motion.button>
 
         {editNote && (
@@ -245,7 +238,6 @@ const AdminNoteManagement = () => {
         )}
       </motion.form>
 
-      {/* 📋 Notes Table */}
       <div className="note-table-container">
         <h3>📂 Uploaded Notes</h3>
         {loading ? (

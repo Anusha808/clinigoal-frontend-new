@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./AdminCourseManagement.css";
 
-// ✅ Automatically switch between local & deployed backend
+// 🌐 Dynamic API URL
 const API_BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:5000/api"
-    : "https://clinigoal-backend.onrender.com/api";
+    : "https://clinigoal-backend-yfu3.onrender.com/api";
 
 const AdminCourseManagement = () => {
   const [courses, setCourses] = useState([]);
@@ -19,7 +19,7 @@ const AdminCourseManagement = () => {
     fetchCourses();
   }, []);
 
-  // ✅ Fetch all courses
+  // Fetch all courses
   const fetchCourses = async () => {
     try {
       setLoading(true);
@@ -33,7 +33,7 @@ const AdminCourseManagement = () => {
     }
   };
 
-  // ✅ Add or Edit course
+  // Add or Edit course
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -53,7 +53,7 @@ const AdminCourseManagement = () => {
     }
   };
 
-  // ✅ Delete course
+  // Delete course
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this course?")) return;
     try {
@@ -138,7 +138,7 @@ const AdminCourseManagement = () => {
         )}
       </div>
 
-      {/* 🌈 Modal */}
+      {/* Modal */}
       {modalType && (
         <div className="modal-overlay">
           <div className="modal-content">

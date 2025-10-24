@@ -1,3 +1,4 @@
+// DashboardOverview.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -18,6 +19,7 @@ const DashboardOverview = () => {
     totalRevenue: 0,
   });
 
+  // 🔁 Fetch dashboard stats on mount
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -31,6 +33,7 @@ const DashboardOverview = () => {
     fetchStats();
   }, []);
 
+  // 🔹 Card configuration
   const cards = [
     {
       label: "Total Users",
@@ -60,6 +63,7 @@ const DashboardOverview = () => {
 
   return (
     <div className="overview-container">
+      {/* Title */}
       <motion.h2
         className="overview-title"
         initial={{ opacity: 0, y: -20 }}
@@ -69,6 +73,7 @@ const DashboardOverview = () => {
         📊 Dashboard Overview
       </motion.h2>
 
+      {/* Stats Cards */}
       <motion.div
         className="overview-grid"
         initial="hidden"
@@ -103,4 +108,3 @@ const DashboardOverview = () => {
 };
 
 export default DashboardOverview;
-

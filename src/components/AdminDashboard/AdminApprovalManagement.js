@@ -1,5 +1,6 @@
+// AdminApprovalManagement.js
 import React, { useState, useEffect, useRef } from "react";
-import API from "../../api"; // ✅ Use centralized axios instance
+import API from "../../api"; // ✅ Centralized axios instance
 import "./AdminApprovalManagement.css";
 
 const AdminApprovalManagement = () => {
@@ -15,7 +16,7 @@ const AdminApprovalManagement = () => {
       if (!isAutoRefresh) setLoading(true);
       else setRefreshing(true);
 
-      const { data } = await API.get("/api/enrollments"); // ✅ Uses .env base URL
+      const { data } = await API.get("/api/enrollments");
       const currentApprovals = Array.isArray(data.enrollments)
         ? data.enrollments
         : [];

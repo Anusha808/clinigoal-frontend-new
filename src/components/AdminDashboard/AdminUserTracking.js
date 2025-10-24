@@ -1,3 +1,4 @@
+// AdminUserTracking.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -24,7 +25,7 @@ const AdminUserTracking = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // ✅ Auto-switch between local & deployed
+  // ✅ Auto-switch backend URL based on environment
   const backendURL =
     window.location.hostname === "localhost"
       ? "http://localhost:5000"
@@ -34,13 +35,12 @@ const AdminUserTracking = () => {
     fetchUsers();
   }, []);
 
-  // 🔁 Fetch all users and their progress
+  // 🔁 Fetch users and their progress
   const fetchUsers = async () => {
     try {
       const res = await axios.get(`${backendURL}/api/users`);
       setUsers(res.data);
 
-      // Fetch each user's progress concurrently
       const progressPromises = res.data.map((user) =>
         axios
           .get(`${backendURL}/api/progress/user/${user._id}`)
@@ -137,7 +137,7 @@ const AdminUserTracking = () => {
               </button>
             </div>
 
-            {/* 📊 Show progress if available */}
+            {/* 📊 Show progress */}
             {userProgressData[user._id]?.length > 0 && (
               <div className="user-progress-details">
                 {userProgressData[user._id].map((progress) => (
@@ -146,7 +146,7 @@ const AdminUserTracking = () => {
                       <FaBook /> {progress.courseId?.title || "Untitled Course"}
                     </h4>
 
-                    {/* 🎬 Videos */}
+                    {/* 🎬 Video progress */}
                     <div className="progress-section">
                       <h5>
                         <FaVideo /> Videos
@@ -160,29 +160,24 @@ const AdminUserTracking = () => {
                                 className="progress-bar"
                                 style={{
                                   width: `${
-                                    (vid.watchedDuration /
-                                      vid.totalDuration) *
+                                    (vid.watchedDuration / vid.totalDuration) *
                                       100 || 0
                                   }%`,
                                 }}
                               ></div>
                               <span>
                                 {Math.round(
-                                  (vid.watchedDuration /
-                                    vid.totalDuration) *
-                                    100 || 0
+                                  (vid.watchedDuration / vid.totalDuration) * 100 || 0
                                 )}
                                 %
                               </span>
                             </div>
-                            {vid.isCompleted && (
-                              <FaCheckCircle color="green" />
-                            )}
+                            {vid.isCompleted && <FaCheckCircle color="green" />}
                           </div>
                         ))}
                     </div>
 
-                    {/* 📝 Assignment */}
+                    {/* 📝 Assignment progress */}
                     {progress.assignment && (
                       <div className="progress-section">
                         <h5>
@@ -194,9 +189,7 @@ const AdminUserTracking = () => {
                               <FaCheckCircle color="green" />
                               <span>
                                 Submitted on{" "}
-                                {new Date(
-                                  progress.assignment.submissionDate
-                                ).toLocaleDateString()}
+                                {new Date(progress.assignment.submissionDate).toLocaleDateString()}
                               </span>
                               <span>({progress.assignment.fileName})</span>
                             </>
@@ -207,7 +200,7 @@ const AdminUserTracking = () => {
                       </div>
                     )}
 
-                    {/* 🧩 Quiz */}
+                    {/* 🧩 Quiz progress */}
                     {progress.quiz && (
                       <div className="progress-section">
                         <h5>
@@ -215,8 +208,7 @@ const AdminUserTracking = () => {
                         </h5>
                         <div className="progress-item">
                           <span>
-                            Latest Score: {progress.quiz.score} /{" "}
-                            {progress.quiz.totalQuestions}
+                            Latest Score: {progress.quiz.score} / {progress.quiz.totalQuestions}
                           </span>
                           {progress.quiz.isPassed ? (
                             <FaCheckCircle color="green" />
@@ -229,26 +221,21 @@ const AdminUserTracking = () => {
                     )}
 
                     {/* 🎓 Certificate */}
-                    {progress.certificate &&
-                      progress.certificate.isGenerated && (
-                        <div className="progress-section">
-                          <h5>
-                            <FaCertificate /> Certificate
-                          </h5>
-                          <div className="progress-item">
-                            <FaCheckCircle color="green" />
-                            <span>
-                              Generated on{" "}
-                              {new Date(
-                                progress.certificate.generatedDate
-                              ).toLocaleDateString()}
-                            </span>
-                            <span>
-                              ID: {progress.certificate.certificateId}
-                            </span>
-                          </div>
+                    {progress.certificate && progress.certificate.isGenerated && (
+                      <div className="progress-section">
+                        <h5>
+                          <FaCertificate /> Certificate
+                        </h5>
+                        <div className="progress-item">
+                          <FaCheckCircle color="green" />
+                          <span>
+                            Generated on{" "}
+                            {new Date(progress.certificate.generatedDate).toLocaleDateString()}
+                          </span>
+                          <span>ID: {progress.certificate.certificateId}</span>
                         </div>
-                      )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

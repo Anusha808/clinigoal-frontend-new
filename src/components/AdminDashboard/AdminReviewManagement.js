@@ -11,10 +11,10 @@ import {
 import "./AdminReviewManagement.css";
 
 // ✅ Auto-detect environment (local or deployed)
-const backendURL =
+const API_BASE_URL =
   window.location.hostname === "localhost"
-    ? "http://localhost:5000"
-    : "https://clinigoal-backend-yfu3.onrender.com";
+    ? "http://localhost:5000/api"
+    : "https://clinigoal-backend-yfu3.onrender.com/api";
 
 const AdminReviewManagement = () => {
   const [reviews, setReviews] = useState([]);
@@ -29,7 +29,7 @@ const AdminReviewManagement = () => {
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${backendURL}/api/reviews`);
+      const response = await axios.get(`${API_BASE_URL}/reviews`);
       setReviews(response.data || []);
       setError(null);
     } catch (err) {
@@ -41,14 +41,17 @@ const AdminReviewManagement = () => {
   };
 
   const deleteReview = async (reviewId) => {
-    if (window.confirm("🗑️ Are you sure you want to delete this review?")) {
-      try {
-        await axios.delete(`${backendURL}/api/reviews/${reviewId}`);
-        setReviews((prev) => prev.filter((r) => r._id !== reviewId));
-      } catch (err) {
-        console.error("Error deleting review:", err);
-        setError("❌ Failed to delete review. Please try again later.");
-      }
+    const confirmed = window.confirm(
+      "🗑️ Are you sure you want to delete this review?"
+    );
+    if (!confirmed) return;
+
+    try {
+      await axios.delete(`${API_BASE_URL}/reviews/${reviewId}`);
+      setReviews((prev) => prev.filter((r) => r._id !== reviewId));
+    } catch (err) {
+      console.error("Error deleting review:", err);
+      setError("❌ Failed to delete review. Please try again later.");
     }
   };
 
@@ -84,8 +87,7 @@ const AdminReviewManagement = () => {
             <div key={review._id} className="review-card">
               <div className="review-header">
                 <div className="reviewer-info">
-                  <FaUser />
-                  <span>{review.userName || "Anonymous User"}</span>
+                  <FaUser /> <span>{review.userName || "Anonymous User"}</span>
                 </div>
                 <div className="review-date">
                   <FaCalendarAlt />
@@ -98,8 +100,7 @@ const AdminReviewManagement = () => {
               </div>
 
               <div className="review-course">
-                <strong>📘 Course:</strong>{" "}
-                {review.courseTitle || "Unknown Course"}
+                <strong>📘 Course:</strong> {review.courseTitle || "Unknown"}
               </div>
 
               <div className="review-rating">

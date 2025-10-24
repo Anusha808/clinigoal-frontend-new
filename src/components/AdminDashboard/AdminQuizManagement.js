@@ -15,7 +15,7 @@ import "./AdminQuizManagement.css";
 const API_BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:5000/api"
-    : "https://clinigoal-backend.onrender.com/api"; // ✅ Updated backend
+    : "https://clinigoal-backend.onrender.com/api";
 
 const AdminQuizManagement = () => {
   const [quizzes, setQuizzes] = useState([]);
@@ -34,7 +34,7 @@ const AdminQuizManagement = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  /* 🧭 Fetch quizzes on load */
+  // 🧭 Fetch quizzes on component load
   useEffect(() => {
     fetchQuizzes();
   }, []);
@@ -45,14 +45,14 @@ const AdminQuizManagement = () => {
       const res = await axios.get(`${API_BASE_URL}/quizzes`);
       const data = res.data.quizzes || res.data || [];
       setQuizzes(Array.isArray(data) ? data : []);
-    } catch (error) {
+    } catch (err) {
       setError("Failed to fetch quizzes");
     } finally {
       setLoading(false);
     }
   };
 
-  /* 📝 Handle input changes */
+  // 📝 Handle input changes
   const handleInputChange = (field, value) =>
     setForm({ ...form, [field]: value });
 
@@ -74,7 +74,7 @@ const AdminQuizManagement = () => {
     setForm({ ...form, questions: updated });
   };
 
-  /* 💾 Add or Update Quiz */
+  // 💾 Add or Update Quiz
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -116,7 +116,7 @@ const AdminQuizManagement = () => {
     }
   };
 
-  /* ✏️ Edit Mode */
+  // ✏️ Edit Quiz
   const handleEdit = (quiz) => {
     setForm({
       title: quiz.title,
@@ -129,7 +129,7 @@ const AdminQuizManagement = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  /* 👁️ View Quiz Details */
+  // 👁️ View Quiz Details
   const handleView = (quiz) => {
     const htmlContent = `
       <strong>Course:</strong> ${quiz.courseName}<br><br>
@@ -147,9 +147,8 @@ const AdminQuizManagement = () => {
           )
           .join("")}
       </ul>
-      <strong>Correct Answer:</strong> <span style="color:green;">${
-        quiz.questions[0].correctAnswer
-      }</span>
+      <strong>Correct Answer:</strong> <span style="color:green;">
+        ${quiz.questions[0].correctAnswer}</span>
     `;
 
     Swal.fire({
@@ -161,7 +160,7 @@ const AdminQuizManagement = () => {
     });
   };
 
-  /* 🗑️ Delete Quiz */
+  // 🗑️ Delete Quiz
   const handleDelete = async (id) => {
     const confirm = await Swal.fire({
       title: "Are you sure?",
