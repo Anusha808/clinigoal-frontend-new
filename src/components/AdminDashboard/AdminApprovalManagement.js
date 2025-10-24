@@ -1,6 +1,6 @@
 // AdminApprovalManagement.js
 import React, { useState, useEffect, useRef } from "react";
-import API from "../../api"; // ✅ Centralized axios instance
+import api, { approvalAPI } from "../../api"; // ✅ use updated api.js
 import "./AdminApprovalManagement.css";
 
 const AdminApprovalManagement = () => {
@@ -11,12 +11,14 @@ const AdminApprovalManagement = () => {
   const [newEnrollmentIds, setNewEnrollmentIds] = useState(new Set());
   const prevApprovalsRef = useRef();
 
+  // ✅ Fetch approvals
   const fetchApprovals = async (isAutoRefresh = false) => {
     try {
       if (!isAutoRefresh) setLoading(true);
       else setRefreshing(true);
 
-      const { data } = await API.get("/api/enrollments");
+      const { data } = await approvalAPI.getAllApprovals();
+
       const currentApprovals = Array.isArray(data.enrollments)
         ? data.enrollments
         : [];
@@ -41,9 +43,16 @@ const AdminApprovalManagement = () => {
 
       setApprovals(currentApprovals);
       prevApprovalsRef.current = currentApprovals;
+      setError(null);
     } catch (err) {
       console.error("❌ Fetch error:", err);
-      setError("Failed to fetch approvals.");
+      if (err.response) {
+        setError(err.response.data.message || "Failed to fetch approvals.");
+      } else if (err.request) {
+        setError("⚠️ Cannot reach the server. Please try again later.");
+      } else {
+        setError("❌ Unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -52,39 +61,25 @@ const AdminApprovalManagement = () => {
 
   useEffect(() => {
     fetchApprovals();
-    const interval = setInterval(() => fetchApprovals(true), 6000);
+    const interval = setInterval(() => fetchApprovals(true), 8000);
     return () => clearInterval(interval);
   }, []);
 
-  const handleApprove = async (id) => {
+  // ✅ Update enrollment status
+  const updateStatus = async (id, status, successMsg) => {
     try {
-      await API.put(`/api/enrollments/${id}`, { status: "approved" });
-      alert("✅ Enrollment approved!");
+      await api.put(`/enrollments/${id}`, { status });
+      alert(successMsg);
       fetchApprovals();
-    } catch {
-      alert("Error approving request.");
+    } catch (err) {
+      alert("Error updating request.");
+      console.error(err);
     }
   };
 
-  const handleReject = async (id) => {
-    try {
-      await API.put(`/api/enrollments/${id}`, { status: "rejected" });
-      alert("❌ Enrollment rejected.");
-      fetchApprovals();
-    } catch {
-      alert("Error rejecting request.");
-    }
-  };
-
-  const handleRevoke = async (id) => {
-    try {
-      await API.put(`/api/enrollments/${id}`, { status: "pending" });
-      alert("⚠️ Approval revoked and set back to pending.");
-      fetchApprovals();
-    } catch {
-      alert("Error revoking approval.");
-    }
-  };
+  const handleApprove = (id) => updateStatus(id, "approved", "✅ Enrollment approved!");
+  const handleReject = (id) => updateStatus(id, "rejected", "❌ Enrollment rejected.");
+  const handleRevoke = (id) => updateStatus(id, "pending", "⚠️ Approval revoked.");
 
   const formatDate = (dateString) =>
     dateString ? new Date(dateString).toLocaleString() : "N/A";
@@ -116,7 +111,7 @@ const AdminApprovalManagement = () => {
 
       {error && (
         <div className="error-message">
-          <p>⚠️ {error}</p>
+          <p>{error}</p>
           <button type="button" onClick={() => fetchApprovals()} className="retry-btn">
             Retry
           </button>
@@ -165,39 +160,15 @@ const AdminApprovalManagement = () => {
                     <div className="action-buttons">
                       {a.status === "pending" && (
                         <>
-                          <button
-                            type="button"
-                            className="approve-btn"
-                            onClick={() => handleApprove(a._id)}
-                          >
-                            Approve
-                          </button>
-                          <button
-                            type="button"
-                            className="reject-btn"
-                            onClick={() => handleReject(a._id)}
-                          >
-                            Reject
-                          </button>
+                          <button className="approve-btn" onClick={() => handleApprove(a._id)}>Approve</button>
+                          <button className="reject-btn" onClick={() => handleReject(a._id)}>Reject</button>
                         </>
                       )}
                       {a.status === "approved" && (
-                        <button
-                          type="button"
-                          className="revoke-btn"
-                          onClick={() => handleRevoke(a._id)}
-                        >
-                          Revoke
-                        </button>
+                        <button className="revoke-btn" onClick={() => handleRevoke(a._id)}>Revoke</button>
                       )}
                       {a.status === "rejected" && (
-                        <button
-                          type="button"
-                          className="revoke-btn"
-                          onClick={() => handleRevoke(a._id)}
-                        >
-                          Reopen
-                        </button>
+                        <button className="revoke-btn" onClick={() => handleRevoke(a._id)}>Reopen</button>
                       )}
                     </div>
                   </td>

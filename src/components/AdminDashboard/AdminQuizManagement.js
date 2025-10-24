@@ -1,16 +1,10 @@
 // AdminQuizManagement.js
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { quizAPI } from "../../api"; // ✅ Updated API import
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
-import { FaPlusCircle, FaEdit, FaTrash, FaEye } from "react-icons/fa";
+import { FaPlusCircle, FaEdit, FaTrash } from "react-icons/fa";
 import "./AdminQuizManagement.css";
-
-// ✅ Dynamic API URL
-const API_BASE_URL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5000/api"
-    : "https://clinigoal-backend.onrender.com/api";
 
 const AdminQuizManagement = () => {
   const [quizzes, setQuizzes] = useState([]);
@@ -22,38 +16,36 @@ const AdminQuizManagement = () => {
   const [editingQuizId, setEditingQuizId] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Fetch quizzes on mount
-  useEffect(() => {
-    fetchQuizzes();
-  }, []);
-
+  // ✅ Fetch quizzes
   const fetchQuizzes = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API_BASE_URL}/quizzes`);
-      setQuizzes(res.data.quizzes || []);
-    } catch {
+      const { data } = await quizAPI.getAllQuizzes();
+      setQuizzes(data.quizzes || []);
+    } catch (err) {
+      console.error(err);
       Swal.fire("❌ Error", "Failed to fetch quizzes.", "error");
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchQuizzes();
+  }, []);
+
   // ✅ Form handlers
   const handleInputChange = (field, value) => setForm({ ...form, [field]: value });
-
   const handleQuestionChange = (value) => {
     const updated = [...form.questions];
     updated[0].question = value;
     setForm({ ...form, questions: updated });
   };
-
   const handleOptionChange = (i, value) => {
     const updated = [...form.questions];
     updated[0].options[i] = value;
     setForm({ ...form, questions: updated });
   };
-
   const handleCorrectAnswerChange = (value) => {
     const updated = [...form.questions];
     updated[0].correctAnswer = value;
@@ -63,8 +55,8 @@ const AdminQuizManagement = () => {
   // ✅ Submit quiz (add or update)
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const q = form.questions[0];
+
     if (!form.title || !form.courseName || !q.question || q.options.some((o) => !o) || !q.correctAnswer) {
       Swal.fire("⚠️ Warning", "Please fill all fields.", "warning");
       return;
@@ -73,14 +65,13 @@ const AdminQuizManagement = () => {
     try {
       setLoading(true);
       if (editingQuizId) {
-        await axios.put(`${API_BASE_URL}/quizzes/${editingQuizId}`, form);
+        await quizAPI.updateQuiz(editingQuizId, form);
         Swal.fire("✅ Updated", "Quiz updated successfully.", "success");
       } else {
-        await axios.post(`${API_BASE_URL}/quizzes`, form);
+        await quizAPI.createQuiz(form);
         Swal.fire("✅ Added", "Quiz added successfully.", "success");
       }
 
-      // Reset form
       setForm({
         title: "",
         courseName: "",
@@ -88,7 +79,8 @@ const AdminQuizManagement = () => {
       });
       setEditingQuizId(null);
       fetchQuizzes();
-    } catch {
+    } catch (err) {
+      console.error(err);
       Swal.fire("❌ Error", "Failed to save quiz.", "error");
     } finally {
       setLoading(false);
@@ -119,100 +111,51 @@ const AdminQuizManagement = () => {
     if (!confirm.isConfirmed) return;
 
     try {
-      await axios.delete(`${API_BASE_URL}/quizzes/${id}`);
+      await quizAPI.deleteQuiz(id);
       Swal.fire("🗑️ Deleted!", "Quiz removed successfully.", "success");
       fetchQuizzes();
-    } catch {
+    } catch (err) {
+      console.error(err);
       Swal.fire("❌ Error", "Failed to delete quiz.", "error");
     }
   };
 
   return (
     <div className="admin-quiz-management">
-      <motion.h2
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
+      <motion.h2 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <FaPlusCircle className="icon" /> Quiz Management
       </motion.h2>
 
-      <motion.form
-        className="quiz-form"
-        onSubmit={handleSubmit}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <input
-          type="text"
-          placeholder="Quiz Title"
-          value={form.title}
-          onChange={(e) => handleInputChange("title", e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Course Name"
-          value={form.courseName}
-          onChange={(e) => handleInputChange("courseName", e.target.value)}
-          required
-        />
-        <textarea
-          placeholder="Question"
-          value={form.questions[0].question}
-          onChange={(e) => handleQuestionChange(e.target.value)}
-          required
-        />
+      <motion.form className="quiz-form" onSubmit={handleSubmit} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+        <input type="text" placeholder="Quiz Title" value={form.title} onChange={(e) => handleInputChange("title", e.target.value)} required />
+        <input type="text" placeholder="Course Name" value={form.courseName} onChange={(e) => handleInputChange("courseName", e.target.value)} required />
+        <textarea placeholder="Question" value={form.questions[0].question} onChange={(e) => handleQuestionChange(e.target.value)} required />
+
         {form.questions[0].options.map((opt, i) => (
           <div key={i} className="option-row">
-            <input
-              type="text"
-              value={opt}
-              placeholder={`Option ${i + 1}`}
-              onChange={(e) => handleOptionChange(i, e.target.value)}
-              required
-            />
+            <input type="text" value={opt} placeholder={`Option ${i + 1}`} onChange={(e) => handleOptionChange(i, e.target.value)} required />
             <label>
-              <input
-                type="radio"
-                name="correctAnswer"
-                checked={form.questions[0].correctAnswer === opt}
-                onChange={() => handleCorrectAnswerChange(opt)}
-              />
+              <input type="radio" name="correctAnswer" checked={form.questions[0].correctAnswer === opt} onChange={() => handleCorrectAnswerChange(opt)} />
               Correct
             </label>
           </div>
         ))}
 
         <div className="form-buttons">
-          <button type="submit" disabled={loading}>
-            {editingQuizId ? "💾 Update Quiz" : "➕ Add Quiz"}
-          </button>
+          <button type="submit" disabled={loading}>{editingQuizId ? "💾 Update Quiz" : "➕ Add Quiz"}</button>
           {editingQuizId && (
-            <button
-              type="button"
-              onClick={() => {
-                setEditingQuizId(null);
-                setForm({
-                  title: "",
-                  courseName: "",
-                  questions: [{ question: "", options: ["", "", "", ""], correctAnswer: "" }],
-                });
-                Swal.fire("❎ Edit Cancelled", "You are now in add mode.", "info");
-              }}
-            >
-              Cancel
-            </button>
+            <button type="button" onClick={() => {
+              setEditingQuizId(null);
+              setForm({ title: "", courseName: "", questions: [{ question: "", options: ["", "", "", ""], correctAnswer: "" }] });
+              Swal.fire("❎ Edit Cancelled", "You are now in add mode.", "info");
+            }}>Cancel</button>
           )}
         </div>
       </motion.form>
 
       <div className="quiz-table-container">
         <h3>📂 Uploaded Quizzes</h3>
-        {loading ? (
-          <p>Loading quizzes...</p>
-        ) : quizzes.length > 0 ? (
+        {loading ? <p>Loading quizzes...</p> : quizzes.length > 0 ? (
           <table className="quiz-table">
             <thead>
               <tr>
@@ -224,30 +167,19 @@ const AdminQuizManagement = () => {
             </thead>
             <tbody>
               {quizzes.map((quiz, idx) => (
-                <motion.tr
-                  key={quiz._id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                >
+                <motion.tr key={quiz._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}>
                   <td>{quiz.title}</td>
                   <td>{quiz.courseName}</td>
                   <td>{quiz.questions?.length || 0}</td>
                   <td className="action-buttons">
-                    <button onClick={() => handleEdit(quiz)}>
-                      <FaEdit /> Edit
-                    </button>
-                    <button onClick={() => handleDelete(quiz._id)}>
-                      <FaTrash /> Delete
-                    </button>
+                    <button onClick={() => handleEdit(quiz)}><FaEdit /> Edit</button>
+                    <button onClick={() => handleDelete(quiz._id)}><FaTrash /> Delete</button>
                   </td>
                 </motion.tr>
               ))}
             </tbody>
           </table>
-        ) : (
-          <p>No quizzes uploaded yet.</p>
-        )}
+        ) : <p>No quizzes uploaded yet.</p>}
       </div>
     </div>
   );

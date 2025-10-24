@@ -1,4 +1,3 @@
-// AdminAnalytics.js
 import React, { useEffect, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -37,8 +36,8 @@ const AdminAnalytics = () => {
     fetchAnalytics();
   }, []);
 
-  if (loading) return <div>Loading analytics...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) return <div className="loading">Loading analytics...</div>;
+  if (error) return <div className="error">{error}</div>;
 
   return (
     <div className="analytics-dashboard">
@@ -60,7 +59,7 @@ const AdminAnalytics = () => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="users" stroke="#0078ff" />
+              <Line type="monotone" dataKey="users" stroke="#0078FF" />
               <Line type="monotone" dataKey="courses" stroke="#00C49F" />
             </LineChart>
           </ResponsiveContainer>

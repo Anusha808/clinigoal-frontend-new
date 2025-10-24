@@ -1,3 +1,4 @@
+// ✅ api.js
 import axios from "axios";
 
 // ✅ Auto-detect environment and use .env variable (with fallback)
@@ -16,16 +17,23 @@ const api = axios.create({
   timeout: 300000, // 5 minutes (for large file uploads)
 });
 
-// ✅ Request interceptor (debugging + logs)
+// ✅ Request interceptor: attach token + logs
 api.interceptors.request.use(
   (config) => {
-    console.log(`🚀 API Call: ${config.method?.toUpperCase()} ${config.url}`);
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    console.log(
+      `🚀 API Call: ${config.method?.toUpperCase()} ${config.url}`,
+      token ? "(with auth)" : "(no auth)"
+    );
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// ✅ Response interceptor (error handling)
+// ✅ Response interceptor: log errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -42,6 +50,7 @@ api.interceptors.response.use(
 // ✅ Organized API Groups
 //
 
+// 🎥 Video APIs
 export const videoAPI = {
   getAllVideos: () => api.get("/videos"),
   uploadVideo: (formData) =>
@@ -51,27 +60,32 @@ export const videoAPI = {
   deleteVideo: (id) => api.delete(`/videos/${id}`),
 };
 
+// ✅ Approvals APIs
 export const approvalAPI = {
   getAllApprovals: () => api.get("/approvals").catch(() => ({ data: [] })),
 };
 
+// 🧠 Review APIs
 export const reviewAPI = {
   getAllReviews: () => api.get("/reviews").catch(() => ({ data: [] })),
 };
 
+// 📝 Quiz APIs
 export const quizAPI = {
   getAllQuizzes: () => api.get("/quizzes").catch(() => ({ data: [] })),
 };
 
+// 📚 Notes APIs
 export const notesAPI = {
   getAllNotes: () => api.get("/notes").catch(() => ({ data: [] })),
 };
 
+// 🎓 Course APIs
 export const courseAPI = {
   getAllCourses: () => api.get("/courses").catch(() => ({ data: [] })),
 };
 
-// ✅ Health check endpoint
+// 🩺 Health check endpoint
 export const healthCheck = () => api.get("/health");
 
 // ✅ Default export

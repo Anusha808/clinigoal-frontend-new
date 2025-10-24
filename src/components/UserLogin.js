@@ -1,15 +1,12 @@
-// UserLogin.js
+// ✅ UserLogin.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import "./UserLogin.css";
 
-// ✅ Set backend URL dynamically
-const API_BASE_URL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5000/api"
-    : "https://clinigoal-server-side.onrender.com/api";
+// ✅ Use environment variable (works on localhost + production)
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 // Background images for slider
 const images = [
@@ -54,11 +51,13 @@ const UserLogin = () => {
 
     try {
       if (formType === "login") {
-        // Login API call
+        // ✅ Login API call
         const res = await axios.post(`${API_BASE_URL}/users/login`, {
           email: formData.email,
           password: formData.password,
         });
+
+        console.log("✅ Login success:", res.data);
 
         // ✅ Save token and user info
         localStorage.setItem("token", res.data.token);
@@ -67,17 +66,19 @@ const UserLogin = () => {
         setMessage("✅ Login successful!");
         setType("success");
 
-        // Navigate to dashboard immediately
+        // ✅ Navigate to dashboard after login
         navigate("/user-dashboard", { replace: true });
-      } else if (formType === "register") {
-        // Register API call
+      } 
+      else if (formType === "register") {
+        // ✅ Register API call
         await axios.post(`${API_BASE_URL}/users/register`, formData);
         setMessage("🎉 Registration successful! Please login.");
         setType("success");
         setFormType("login");
         setFormData({ name: "", email: "", password: "" });
-      } else if (formType === "forgot") {
-        // Forgot password API call
+      } 
+      else if (formType === "forgot") {
+        // ✅ Forgot password API call
         await axios.post(`${API_BASE_URL}/users/forgot-password`, {
           email: formData.email,
         });
@@ -85,6 +86,7 @@ const UserLogin = () => {
         setType("success");
       }
     } catch (err) {
+      console.error("❌ Login/Register error:", err.response?.data || err);
       setMessage(err.response?.data?.message || "❌ Something went wrong.");
       setType("error");
     } finally {
@@ -215,7 +217,9 @@ const UserLogin = () => {
                     <span onClick={() => setFormType("register")}>Register</span>
                   </p>
                   <p>
-                    <span onClick={() => setFormType("forgot")}>Forgot Password?</span>
+                    <span onClick={() => setFormType("forgot")}>
+                      Forgot Password?
+                    </span>
                   </p>
                 </>
               )}
@@ -227,7 +231,8 @@ const UserLogin = () => {
               )}
               {formType === "forgot" && (
                 <p>
-                  Back to <span onClick={() => setFormType("login")}>Login</span>
+                  Back to{" "}
+                  <span onClick={() => setFormType("login")}>Login</span>
                 </p>
               )}
             </div>
