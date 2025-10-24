@@ -8,6 +8,8 @@
     { "src": "/favicon.ico", "dest": "/favicon.ico" },
     { "src": "/logo192.png", "dest": "/logo192.png" },
     { "src": "/logo512.png", "dest": "/logo512.png" },
+   { "src": "/apple-touch-icon.png", "dest": "/apple-touch-icon.png" },
+
     { "src": "/(.*)", "dest": "/index.html" }
   ],
   "env": {
