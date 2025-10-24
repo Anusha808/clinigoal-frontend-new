@@ -4,7 +4,6 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import "./AdminVideoManagement.css";
 
-// ✅ Backend URL auto-switch based on environment
 const API_BASE =
   window.location.hostname === "localhost"
     ? "http://localhost:5000/api/videos"
@@ -29,8 +28,7 @@ const AdminVideoManagement = () => {
       Swal.fire({
         icon: "error",
         title: "Failed to load videos",
-        text: "Please check your server connection.",
-        confirmButtonColor: "#007bff",
+        text: err.response?.data?.message || "Server unreachable",
       });
     }
   };
@@ -58,7 +56,13 @@ const AdminVideoManagement = () => {
 
     try {
       const res = editVideo
-        ? await axios.put(`${API_BASE}/${editVideo._id}`, { title, courseName })
+        ? await axios.put(`${API_BASE}/${editVideo._id}`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+            onUploadProgress: (event) => {
+              const progress = Math.round((event.loaded * 100) / event.total);
+              setUploadProgress(progress);
+            },
+          })
         : await axios.post(`${API_BASE}/upload`, formData, {
             headers: { "Content-Type": "multipart/form-data" },
             onUploadProgress: (event) => {
@@ -84,7 +88,6 @@ const AdminVideoManagement = () => {
         icon: "error",
         title: "Operation failed",
         text: error.response?.data?.message || "Try again later.",
-        confirmButtonColor: "#007bff",
       });
     } finally {
       setLoading(false);
@@ -124,13 +127,12 @@ const AdminVideoManagement = () => {
       icon: "info",
       title: "Editing Mode",
       text: `You're editing "${video.title}"`,
-      confirmButtonColor: "#007bff",
     });
   };
 
   // ✅ Format file size
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return "0 Bytes";
+    if (!bytes) return "0 Bytes";
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));

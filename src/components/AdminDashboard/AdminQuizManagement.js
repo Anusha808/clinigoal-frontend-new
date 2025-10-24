@@ -1,5 +1,8 @@
+// AdminQuizManagement.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { motion } from "framer-motion";
+import Swal from "sweetalert2";
 import {
   FaPlusCircle,
   FaTrash,
@@ -7,11 +10,9 @@ import {
   FaEye,
   FaClipboardList,
 } from "react-icons/fa";
-import { motion } from "framer-motion";
-import Swal from "sweetalert2";
 import "./AdminQuizManagement.css";
 
-/* 🌐 Dynamic API URL */
+// ✅ Dynamic API URL
 const API_BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:5000/api"
@@ -23,18 +24,14 @@ const AdminQuizManagement = () => {
     title: "",
     courseName: "",
     questions: [
-      {
-        question: "",
-        options: ["", "", "", ""],
-        correctAnswer: "",
-      },
+      { question: "", options: ["", "", "", ""], correctAnswer: "" },
     ],
   });
   const [editingQuizId, setEditingQuizId] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
 
-  // 🧭 Fetch quizzes on component load
+  // 🔁 Fetch quizzes on mount
   useEffect(() => {
     fetchQuizzes();
   }, []);
@@ -43,47 +40,68 @@ const AdminQuizManagement = () => {
     try {
       setLoading(true);
       const res = await axios.get(`${API_BASE_URL}/quizzes`);
-      const data = res.data.quizzes || res.data || [];
-      setQuizzes(Array.isArray(data) ? data : []);
+      setQuizzes(res.data.quizzes || res.data || []);
     } catch (err) {
+      console.error(err);
       setError("Failed to fetch quizzes");
     } finally {
       setLoading(false);
     }
   };
 
-  // 📝 Handle input changes
+  // 🔹 Form handlers
   const handleInputChange = (field, value) =>
     setForm({ ...form, [field]: value });
 
-  const handleQuestionChange = (value) => {
+  const handleQuestionChange = (index, value) => {
     const updated = [...form.questions];
-    updated[0].question = value;
+    updated[index].question = value;
     setForm({ ...form, questions: updated });
   };
 
-  const handleOptionChange = (index, value) => {
+  const handleOptionChange = (qIndex, oIndex, value) => {
     const updated = [...form.questions];
-    updated[0].options[index] = value;
+    updated[qIndex].options[oIndex] = value;
     setForm({ ...form, questions: updated });
   };
 
-  const handleCorrectAnswerChange = (value) => {
+  const handleCorrectAnswerChange = (qIndex, option) => {
     const updated = [...form.questions];
-    updated[0].correctAnswer = value;
+    updated[qIndex].correctAnswer = option;
     setForm({ ...form, questions: updated });
   };
 
-  // 💾 Add or Update Quiz
+  const addQuestion = () => {
+    setForm({
+      ...form,
+      questions: [
+        ...form.questions,
+        { question: "", options: ["", "", "", ""], correctAnswer: "" },
+      ],
+    });
+  };
+
+  const removeQuestion = (index) => {
+    const updated = [...form.questions];
+    updated.splice(index, 1);
+    setForm({ ...form, questions: updated });
+  };
+
+  // 💾 Add / Update Quiz
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
+    // Basic validation
     if (
       !form.title.trim() ||
       !form.courseName.trim() ||
-      !form.questions[0].question.trim() ||
-      form.questions[0].options.some((opt) => !opt.trim()) ||
-      !form.questions[0].correctAnswer.trim()
+      form.questions.some(
+        (q) =>
+          !q.question.trim() ||
+          q.options.some((opt) => !opt.trim()) ||
+          !q.correctAnswer.trim()
+      )
     ) {
       setError("Please fill in all fields correctly.");
       return;
@@ -103,64 +121,62 @@ const AdminQuizManagement = () => {
       setForm({
         title: "",
         courseName: "",
-        questions: [
-          { question: "", options: ["", "", "", ""], correctAnswer: "" },
-        ],
+        questions: [{ question: "", options: ["", "", "", ""], correctAnswer: "" }],
       });
       setEditingQuizId(null);
       fetchQuizzes();
     } catch (err) {
-      Swal.fire("❌ Error", "Failed to save quiz.", "error");
+      console.error(err.response?.data || err.message);
+      Swal.fire(
+        "❌ Error",
+        err.response?.data?.message || "Failed to save quiz.",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // ✏️ Edit Quiz
+  // ✏ Edit quiz
   const handleEdit = (quiz) => {
     setForm({
       title: quiz.title,
       courseName: quiz.courseName,
-      questions: quiz.questions || [
-        { question: "", options: ["", "", "", ""], correctAnswer: "" },
-      ],
+      questions: quiz.questions || [{ question: "", options: ["", "", "", ""], correctAnswer: "" }],
     });
     setEditingQuizId(quiz._id);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // 👁️ View Quiz Details
+  // 👁 View quiz details
   const handleView = (quiz) => {
-    const htmlContent = `
-      <strong>Course:</strong> ${quiz.courseName}<br><br>
-      <strong>Question:</strong> ${quiz.questions[0].question}<br><br>
-      <strong>Options:</strong>
-      <ul style="text-align:left">
-        ${quiz.questions[0].options
-          .map(
-            (opt) =>
-              `<li ${
-                opt === quiz.questions[0].correctAnswer
-                  ? 'style="color:green;font-weight:600"'
-                  : ""
-              }>${opt}</li>`
-          )
-          .join("")}
-      </ul>
-      <strong>Correct Answer:</strong> <span style="color:green;">
-        ${quiz.questions[0].correctAnswer}</span>
-    `;
-
+    const htmlContent = quiz.questions
+      .map(
+        (q, idx) =>
+          `<strong>Q${idx + 1}:</strong> ${q.question}<br>
+           <ul style="text-align:left">
+            ${q.options
+              .map(
+                (opt) =>
+                  `<li ${
+                    opt === q.correctAnswer
+                      ? 'style="color:green;font-weight:600"'
+                      : ""
+                  }>${opt}</li>`
+              )
+              .join("")}
+           </ul>`
+      )
+      .join("<br>");
     Swal.fire({
       title: quiz.title,
-      html: htmlContent,
+      html: `<strong>Course:</strong> ${quiz.courseName}<br><br>${htmlContent}`,
       icon: "info",
-      confirmButtonText: "Close",
       width: 500,
     });
   };
 
-  // 🗑️ Delete Quiz
+  // 🗑 Delete quiz
   const handleDelete = async (id) => {
     const confirm = await Swal.fire({
       title: "Are you sure?",
@@ -195,7 +211,7 @@ const AdminQuizManagement = () => {
 
       {error && <p className="error-message">{error}</p>}
 
-      {/* 🧾 Quiz Form */}
+      {/* 📝 Quiz Form */}
       <motion.form
         className="quiz-form"
         onSubmit={handleSubmit}
@@ -219,43 +235,67 @@ const AdminQuizManagement = () => {
             <input
               type="text"
               value={form.courseName}
-              onChange={(e) => handleInputChange("courseName", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("courseName", e.target.value)
+              }
               placeholder="Enter course name"
             />
           </div>
         </div>
 
-        <div className="form-group">
-          <label>Question</label>
-          <textarea
-            value={form.questions[0].question}
-            onChange={(e) => handleQuestionChange(e.target.value)}
-            placeholder="Enter quiz question"
-          />
-        </div>
-
-        <div className="form-group options-section">
-          <label>Options</label>
-          {form.questions[0].options.map((opt, i) => (
-            <div className="option-line" key={i}>
-              <input
-                type="text"
-                value={opt}
-                onChange={(e) => handleOptionChange(i, e.target.value)}
-                placeholder={`Option ${i + 1}`}
+        {form.questions.map((q, qIndex) => (
+          <div key={qIndex} className="question-block">
+            <div className="form-group">
+              <label>Question {qIndex + 1}</label>
+              <textarea
+                value={q.question}
+                onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
+                placeholder="Enter question"
               />
-              <label className="correct-label">
-                <input
-                  type="radio"
-                  name="correctAnswer"
-                  checked={form.questions[0].correctAnswer === opt}
-                  onChange={() => handleCorrectAnswerChange(opt)}
-                />
-                Correct
-              </label>
             </div>
-          ))}
-        </div>
+            <div className="form-group options-section">
+              <label>Options</label>
+              {q.options.map((opt, oIndex) => (
+                <div className="option-line" key={oIndex}>
+                  <input
+                    type="text"
+                    value={opt}
+                    onChange={(e) =>
+                      handleOptionChange(qIndex, oIndex, e.target.value)
+                    }
+                    placeholder={`Option ${oIndex + 1}`}
+                  />
+                  <label className="correct-label">
+                    <input
+                      type="radio"
+                      name={`correct-${qIndex}`}
+                      checked={q.correctAnswer === opt}
+                      onChange={() => handleCorrectAnswerChange(qIndex, opt)}
+                    />
+                    Correct
+                  </label>
+                </div>
+              ))}
+            </div>
+            {form.questions.length > 1 && (
+              <button
+                type="button"
+                className="remove-question-btn"
+                onClick={() => removeQuestion(qIndex)}
+              >
+                Remove Question
+              </button>
+            )}
+          </div>
+        ))}
+
+        <button
+          type="button"
+          className="add-question-btn"
+          onClick={addQuestion}
+        >
+          + Add Question
+        </button>
 
         <motion.button
           type="submit"
@@ -265,11 +305,7 @@ const AdminQuizManagement = () => {
           disabled={loading}
         >
           <FaPlusCircle />{" "}
-          {loading
-            ? "Saving..."
-            : editingQuizId
-            ? "Update Quiz"
-            : "Add Quiz"}
+          {loading ? "Saving..." : editingQuizId ? "Update Quiz" : "Add Quiz"}
         </motion.button>
       </motion.form>
 

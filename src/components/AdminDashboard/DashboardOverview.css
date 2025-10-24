@@ -124,3 +124,22 @@
     transform: translateY(0);
   }
 }
+
+/* Top bar */
+.overview-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.overview-logo {
+  height: 50px;
+  width: 50px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.overview-logo:hover {
+  transform: scale(1.1);
+}

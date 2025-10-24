@@ -1,27 +1,28 @@
-// AdminApprovalManagement.js
 import React, { useState, useEffect, useRef } from "react";
-import API from "../../api"; // ✅ Centralized axios instance
+import API from "../../api"; // centralized axios instance
+import Swal from "sweetalert2";
 import "./AdminApprovalManagement.css";
 
 const AdminApprovalManagement = () => {
   const [approvals, setApprovals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
   const [newEnrollmentIds, setNewEnrollmentIds] = useState(new Set());
-  const prevApprovalsRef = useRef();
+  const prevApprovalsRef = useRef([]);
 
   const fetchApprovals = async (isAutoRefresh = false) => {
     try {
       if (!isAutoRefresh) setLoading(true);
       else setRefreshing(true);
 
-      const { data } = await API.get("/api/enrollments");
+      const { data } = await API.get("/enrollments"); // ✅ no extra /api
       const currentApprovals = Array.isArray(data.enrollments)
         ? data.enrollments
         : [];
 
-      if (prevApprovalsRef.current) {
+      // Detect new enrollments
+      if (prevApprovalsRef.current.length > 0) {
         const oldIds = new Set(prevApprovalsRef.current.map((a) => a._id));
         const newIds = currentApprovals
           .filter((a) => !oldIds.has(a._id))
@@ -41,9 +42,10 @@ const AdminApprovalManagement = () => {
 
       setApprovals(currentApprovals);
       prevApprovalsRef.current = currentApprovals;
+      setError(null);
     } catch (err) {
-      console.error("❌ Fetch error:", err);
-      setError("Failed to fetch approvals.");
+      console.error("Fetch approvals error:", err);
+      setError("Failed to fetch approvals. Check server connection.");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -56,33 +58,20 @@ const AdminApprovalManagement = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleApprove = async (id) => {
+  // ✅ Update enrollment status
+  const updateStatus = async (id, status) => {
     try {
-      await API.put(`/api/enrollments/${id}`, { status: "approved" });
-      alert("✅ Enrollment approved!");
+      await API.put(`/enrollments/${id}`, { status });
+      Swal.fire(
+        "Success",
+        `Enrollment ${status === "approved" ? "approved" : status === "rejected" ? "rejected" : "set to pending"
+        }!`,
+        "success"
+      );
       fetchApprovals();
-    } catch {
-      alert("Error approving request.");
-    }
-  };
-
-  const handleReject = async (id) => {
-    try {
-      await API.put(`/api/enrollments/${id}`, { status: "rejected" });
-      alert("❌ Enrollment rejected.");
-      fetchApprovals();
-    } catch {
-      alert("Error rejecting request.");
-    }
-  };
-
-  const handleRevoke = async (id) => {
-    try {
-      await API.put(`/api/enrollments/${id}`, { status: "pending" });
-      alert("⚠️ Approval revoked and set back to pending.");
-      fetchApprovals();
-    } catch {
-      alert("Error revoking approval.");
+    } catch (err) {
+      console.error("Update status error:", err);
+      Swal.fire("Error", "Failed to update enrollment status.", "error");
     }
   };
 
@@ -92,10 +81,7 @@ const AdminApprovalManagement = () => {
   if (loading) {
     return (
       <div className="approval-management">
-        <div className="loading-spinner">
-          <div className="spinner"></div>
-          <p>Loading approvals...</p>
-        </div>
+        <p>Loading approvals...</p>
       </div>
     );
   }
@@ -103,108 +89,68 @@ const AdminApprovalManagement = () => {
   return (
     <div className="approval-management">
       <div className="page-header">
-        <h2 className="page-title">📋 Enrollment Approvals</h2>
-        <button
-          onClick={() => fetchApprovals()}
-          className="refresh-btn"
-          disabled={refreshing}
-        >
+        <h2>📋 Enrollment Approvals</h2>
+        <button onClick={() => fetchApprovals()} disabled={refreshing}>
           {refreshing ? "Refreshing..." : "🔄 Refresh"}
         </button>
       </div>
 
-      {error && (
-        <div className="error-message">
-          <p>⚠️ {error}</p>
-          <button onClick={() => fetchApprovals()} className="retry-btn">
-            Retry
-          </button>
-        </div>
-      )}
+      {error && <p className="error-message">{error}</p>}
 
-      {approvals.length === 0 && !error ? (
-        <div className="no-approvals">
-          <div className="no-approvals-icon">📭</div>
-          <p>No enrollment requests yet.</p>
-        </div>
+      {approvals.length === 0 ? (
+        <p>No enrollment requests yet.</p>
       ) : (
-        <div className="table-container">
-          <table className="approval-table">
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Course</th>
-                <th>Payment ID</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Action</th>
+        <table className="approval-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Course</th>
+              <th>Payment ID</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {approvals.map((a) => (
+              <tr
+                key={a._id}
+                className={newEnrollmentIds.has(a._id) ? "new-enrollment" : ""}
+              >
+                <td>
+                  {a.userName || "Unknown"}
+                  {newEnrollmentIds.has(a._id) && <span className="new-badge">NEW</span>}
+                </td>
+                <td>{a.courseTitle || "Untitled"}</td>
+                <td>{a.paymentId || "N/A"}</td>
+                <td>{formatDate(a.createdAt)}</td>
+                <td>{a.status}</td>
+                <td>
+                  {a.status === "pending" && (
+                    <>
+                      <button onClick={() => updateStatus(a._id, "approved")}>
+                        Approve
+                      </button>
+                      <button onClick={() => updateStatus(a._id, "rejected")}>
+                        Reject
+                      </button>
+                    </>
+                  )}
+                  {a.status === "approved" && (
+                    <button onClick={() => updateStatus(a._id, "pending")}>
+                      Revoke
+                    </button>
+                  )}
+                  {a.status === "rejected" && (
+                    <button onClick={() => updateStatus(a._id, "pending")}>
+                      Reopen
+                    </button>
+                  )}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {approvals.map((a) => (
-                <tr
-                  key={a._id}
-                  className={`${
-                    newEnrollmentIds.has(a._id) ? "new-enrollment" : ""
-                  }`}
-                >
-                  <td>
-                    {a.userName || "Unknown"}
-                    {newEnrollmentIds.has(a._id) && (
-                      <span className="new-badge">NEW</span>
-                    )}
-                  </td>
-                  <td>{a.courseTitle || "Untitled"}</td>
-                  <td>{a.paymentId || "N/A"}</td>
-                  <td>{formatDate(a.createdAt)}</td>
-                  <td>
-                    <span className={`status-badge ${a.status}`}>
-                      {a.status === "approved" && "✅ Approved"}
-                      {a.status === "rejected" && "❌ Rejected"}
-                      {a.status === "pending" && "⏳ Pending"}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="action-buttons">
-                      {a.status === "pending" && (
-                        <>
-                          <button
-                            className="approve-btn"
-                            onClick={() => handleApprove(a._id)}
-                          >
-                            Approve
-                          </button>
-                          <button
-                            className="reject-btn"
-                            onClick={() => handleReject(a._id)}
-                          >
-                            Reject
-                          </button>
-                        </>
-                      )}
-                      {a.status === "approved" && (
-                        <button
-                          className="revoke-btn"
-                          onClick={() => handleRevoke(a._id)}
-                        >
-                          Revoke
-                        </button>
-                      )}
-                      {a.status === "rejected" && (
-                        <button
-                          className="revoke-btn"
-                          onClick={() => handleRevoke(a._id)}
-                        >
-                          Reopen
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

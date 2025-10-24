@@ -1,4 +1,3 @@
-// DashboardOverview.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -7,8 +6,11 @@ import {
   FaBook,
   FaClipboardList,
   FaRupeeSign,
+  FaCog,
 } from "react-icons/fa";
-import API_BASE_URL from "../../api"; // ✅ Correct import
+import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../../api";
+import logo from "../../assets/logo.png"; // ✅ Import your logo
 import "./DashboardOverview.css";
 
 const DashboardOverview = () => {
@@ -19,7 +21,8 @@ const DashboardOverview = () => {
     totalRevenue: 0,
   });
 
-  // 🔁 Fetch dashboard stats on mount
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -29,11 +32,9 @@ const DashboardOverview = () => {
         console.error("❌ Error loading stats:", err);
       }
     };
-
     fetchStats();
   }, []);
 
-  // 🔹 Card configuration
   const cards = [
     {
       label: "Total Users",
@@ -59,21 +60,28 @@ const DashboardOverview = () => {
       icon: <FaRupeeSign />,
       color: "linear-gradient(135deg, #fc466b, #3f5efb)",
     },
+    {
+      label: "Settings",
+      value: "⚙️",
+      icon: <FaCog />,
+      color: "linear-gradient(135deg, #8e2de2, #4a00e0)",
+      onClick: () => navigate("/admin/settings"),
+    },
   ];
 
   return (
     <div className="overview-container">
-      {/* Title */}
-      <motion.h2
-        className="overview-title"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        📊 Dashboard Overview
-      </motion.h2>
+      {/* 🔹 Top Bar with Logo */}
+      <div className="overview-topbar">
+        <h2 className="overview-title">📊 Dashboard Overview</h2>
+        <img
+          src={logo}
+          alt="Logo"
+          className="overview-logo"
+          onClick={() => navigate("/home")} // ✅ Navigate to Home.js
+        />
+      </div>
 
-      {/* Stats Cards */}
       <motion.div
         className="overview-grid"
         initial="hidden"
@@ -91,9 +99,10 @@ const DashboardOverview = () => {
           <motion.div
             key={index}
             className="overview-card"
-            style={{ background: card.color }}
+            style={{ background: card.color, cursor: card.onClick ? "pointer" : "default" }}
             whileHover={{ scale: 1.05, rotate: 1 }}
             transition={{ type: "spring", stiffness: 200 }}
+            onClick={card.onClick ? card.onClick : undefined}
           >
             <div className="card-icon">{card.icon}</div>
             <div className="card-info">
