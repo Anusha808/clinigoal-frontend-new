@@ -1,22 +1,13 @@
+// AdminAnalytics.js
 import React, { useEffect, useState } from "react";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer
 } from "recharts";
-import API from "../../api"; // ✅ centralized Axios instance
+import axios from "axios";
 import "./AdminAnalytics.css";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const COLORS = ["#0078FF", "#00C49F", "#845EC2"];
 
 const AdminAnalytics = () => {
@@ -30,58 +21,36 @@ const AdminAnalytics = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const res = await API.get("/admin/analytics");
+        const res = await axios.get(`${API_BASE_URL}/admin/analytics`);
         const data = res.data;
-
-        // Expecting your backend to return:
-        // { lineData: [...], barData: [...], pieData: [...], stats: {...} }
-
         setLineData(data.lineData || []);
         setBarData(data.barData || []);
         setPieData(data.pieData || []);
         setStats(data.stats || {});
       } catch (err) {
-        console.error("Analytics fetch error:", err);
+        console.error(err);
         setError("Failed to load analytics data.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchAnalytics();
   }, []);
 
-  if (loading) {
-    return <div className="analytics-loading">Loading analytics...</div>;
-  }
-
-  if (error) {
-    return <div className="analytics-error">{error}</div>;
-  }
+  if (loading) return <div>Loading analytics...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="analytics-dashboard">
-      <h2 className="analytics-heading">📊 Platform Analytics Overview</h2>
+      <h2>📊 Platform Analytics Overview</h2>
 
-      {/* 🔹 Stat Summary Cards */}
       <div className="stats-cards">
-        <div className="stat-card">
-          <h3>👥 Total Users</h3>
-          <p>{stats.totalUsers || 0}</p>
-        </div>
-        <div className="stat-card">
-          <h3>📚 Total Courses</h3>
-          <p>{stats.totalCourses || 0}</p>
-        </div>
-        <div className="stat-card">
-          <h3>📈 Monthly Growth</h3>
-          <p>{stats.monthlyGrowth || "0%"} </p>
-        </div>
+        <div className="stat-card">👥 Total Users: {stats.totalUsers || 0}</div>
+        <div className="stat-card">📚 Total Courses: {stats.totalCourses || 0}</div>
+        <div className="stat-card">📈 Monthly Growth: {stats.monthlyGrowth || "0%"}</div>
       </div>
 
-      {/* 🔹 Charts Grid */}
       <div className="charts-grid">
-        {/* Line Chart */}
         <div className="chart-card">
           <h3>User & Course Growth</h3>
           <ResponsiveContainer width="100%" height={280}>
@@ -91,25 +60,12 @@ const AdminAnalytics = () => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line
-                type="monotone"
-                dataKey="users"
-                stroke="#0078ff"
-                strokeWidth={3}
-                dot={{ r: 4 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="courses"
-                stroke="#00C49F"
-                strokeWidth={3}
-                dot={{ r: 4 }}
-              />
+              <Line type="monotone" dataKey="users" stroke="#0078ff" />
+              <Line type="monotone" dataKey="courses" stroke="#00C49F" />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Bar Chart */}
         <div className="chart-card">
           <h3>Monthly Engagement (%)</h3>
           <ResponsiveContainer width="100%" height={280}>
@@ -118,37 +74,19 @@ const AdminAnalytics = () => {
               <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="engagement" barSize={50} fill="url(#barGradient)" />
-              <defs>
-                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#0078FF" stopOpacity={0.9} />
-                  <stop offset="95%" stopColor="#00C9A7" stopOpacity={0.7} />
-                </linearGradient>
-              </defs>
+              <Bar dataKey="engagement" fill="#0078FF" />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Pie Chart */}
         <div className="chart-card">
           <h3>User Roles Distribution</h3>
           <ResponsiveContainer width="100%" height={280}>
             <PieChart>
-              <Pie
-                data={pieData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                label
-              >
-                {pieData.map((_, index) => (
-                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                ))}
+              <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                {pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
               </Pie>
               <Tooltip />
-              <Legend />
             </PieChart>
           </ResponsiveContainer>
         </div>
