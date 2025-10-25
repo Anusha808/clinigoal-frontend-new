@@ -5,8 +5,8 @@ import axios from "axios";
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL ||
   (window.location.hostname === "localhost"
-    ? "http://localhost:5000/api"
-    : "https://clinigoal-backend.onrender.com/api");
+    ? "http://localhost:5000"
+    : "https://clinigoal-backend.onrender.com");
 
 console.log("🔧 API Base URL:", API_BASE_URL);
 console.log("🌍 Current Hostname:", window.location.hostname);
@@ -52,41 +52,41 @@ api.interceptors.response.use(
 
 // 🎥 Video APIs
 export const videoAPI = {
-  getAllVideos: () => api.get("/videos"),
+  getAllVideos: () => api.get("/api/videos"),
   uploadVideo: (formData) =>
-    api.post("/videos/upload", formData, {
+    api.post("/api/videos/upload", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     }),
-  deleteVideo: (id) => api.delete(`/videos/${id}`),
+  deleteVideo: (id) => api.delete(`/api/videos/${id}`),
 };
 
 // ✅ Approvals APIs
 export const approvalAPI = {
-  getAllApprovals: () => api.get("/approvals").catch(() => ({ data: [] })),
+  getAllApprovals: () => api.get("/api/approvals").catch(() => ({ data: [] })),
 };
 
 // 🧠 Review APIs
 export const reviewAPI = {
-  getAllReviews: () => api.get("/reviews").catch(() => ({ data: [] })),
+  getAllReviews: () => api.get("/api/reviews").catch(() => ({ data: [] })),
 };
 
 // 📝 Quiz APIs
 export const quizAPI = {
-  getAllQuizzes: () => api.get("/quizzes").catch(() => ({ data: [] })),
+  getAllQuizzes: () => api.get("/api/quizzes").catch(() => ({ data: [] })),
 };
 
 // 📚 Notes APIs
 export const notesAPI = {
-  getAllNotes: () => api.get("/notes").catch(() => ({ data: [] })),
+  getAllNotes: () => api.get("/api/notes").catch(() => ({ data: [] })),
 };
 
 // 🎓 Course APIs
 export const courseAPI = {
-  getAllCourses: () => api.get("/courses").catch(() => ({ data: [] })),
+  getAllCourses: () => api.get("/api/courses").catch(() => ({ data: [] })),
 };
 
 // 🩺 Health check endpoint
-export const healthCheck = () => api.get("/health");
+export const healthCheck = () => api.get("/");
 
 // ✅ Default export
 export default api;
