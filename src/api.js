@@ -51,41 +51,41 @@ api.interceptors.response.use(
 
 // 🎥 Video APIs
 export const videoAPI = {
-  getAllVideos: () => api.get("/api/videos"),
+  getAllVideos: () => api.get("/videos"),
   uploadVideo: (formData) =>
-    api.post("/api/videos/upload", formData, {
+    api.post("/videos/upload", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     }),
-  deleteVideo: (id) => api.delete(`/api/videos/${id}`),
+  deleteVideo: (id) => api.delete(`/videos/${id}`),
 };
 
 // ✅ Approvals APIs
 export const approvalAPI = {
-  getAllApprovals: () => api.get("/api/approvals").catch(() => ({ data: [] })),
+  getAllApprovals: () => api.get("/approvals").catch(() => ({ data: [] })),
 };
 
 // 🧠 Review APIs
 export const reviewAPI = {
-  getAllReviews: () => api.get("/api/reviews").catch(() => ({ data: [] })),
+  getAllReviews: () => api.get("/reviews").catch(() => ({ data: [] })),
 };
 
 // 📝 Quiz APIs
 export const quizAPI = {
-  getAllQuizzes: () => api.get("/api/quizzes").catch(() => ({ data: [] })),
+  getAllQuizzes: () => api.get("/quizzes").catch(() => ({ data: [] })),
 };
 
 // 📚 Notes APIs
 export const notesAPI = {
-  getAllNotes: () => api.get("/api/notes").catch(() => ({ data: [] })),
+  getAllNotes: () => api.get("/notes").catch(() => ({ data: [] })),
 };
 
 // 🎓 Course APIs
 export const courseAPI = {
-  getAllCourses: () => api.get("/api/courses").catch(() => ({ data: [] })),
+  getAllCourses: () => api.get("/courses").catch(() => ({ data: [] })),
 };
 
 // 🩺 Health check endpoint
-export const healthCheck = () => api.get("/api/health");
+export const healthCheck = () => api.get("/health");
 
 // ✅ Default export
 export default api;
