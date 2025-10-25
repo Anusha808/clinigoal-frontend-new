@@ -8,8 +8,10 @@ const API_BASE_URL =
     ? "http://localhost:5000"
     : "https://clinigoal-backend.onrender.com");
 
-console.log("🔧 API Base URL:", API_BASE_URL);
-console.log("🌍 Current Hostname:", window.location.hostname);
+if (process.env.NODE_ENV === "development") {
+  console.log("🔧 API Base URL:", API_BASE_URL);
+  console.log("🌍 Current Hostname:", window.location.hostname);
+}
 
 // ✅ Create axios instance
 const api = axios.create({
@@ -24,10 +26,12 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log(
-      `🚀 API Call: ${config.method?.toUpperCase()} ${config.url}`,
-      token ? "(with auth)" : "(no auth)"
-    );
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        `🚀 API Call: ${config.method?.toUpperCase()} ${config.url}`,
+        token ? "(with auth)" : "(no auth)"
+      );
+    }
     return config;
   },
   (error) => Promise.reject(error)
@@ -38,9 +42,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error("❌ API Error:", {
-      url: error.config?.url,
-      status: error.response?.status,
-      message: error.response?.data?.message || error.message,
+      url: error?.config?.url,
+      status: error?.response?.status,
+      message: error?.response?.data?.message || error?.message,
     });
     return Promise.reject(error);
   }
@@ -52,41 +56,41 @@ api.interceptors.response.use(
 
 // 🎥 Video APIs
 export const videoAPI = {
-  getAllVideos: () => api.get("/api/videos"),
+  getAllVideos: () => api.get("/videos"),
   uploadVideo: (formData) =>
-    api.post("/api/videos/upload", formData, {
+    api.post("/videos/upload", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     }),
-  deleteVideo: (id) => api.delete(`/api/videos/${id}`),
+  deleteVideo: (id) => api.delete(`/videos/${id}`),
 };
 
 // ✅ Approvals APIs
 export const approvalAPI = {
-  getAllApprovals: () => api.get("/api/approvals").catch(() => ({ data: [] })),
+  getAllApprovals: () => api.get("/approvals").catch(() => ({ data: [] })),
 };
 
 // 🧠 Review APIs
 export const reviewAPI = {
-  getAllReviews: () => api.get("/api/reviews").catch(() => ({ data: [] })),
+  getAllReviews: () => api.get("/reviews").catch(() => ({ data: [] })),
 };
 
 // 📝 Quiz APIs
 export const quizAPI = {
-  getAllQuizzes: () => api.get("/api/quizzes").catch(() => ({ data: [] })),
+  getAllQuizzes: () => api.get("/quizzes").catch(() => ({ data: [] })),
 };
 
 // 📚 Notes APIs
 export const notesAPI = {
-  getAllNotes: () => api.get("/api/notes").catch(() => ({ data: [] })),
+  getAllNotes: () => api.get("/notes").catch(() => ({ data: [] })),
 };
 
 // 🎓 Course APIs
 export const courseAPI = {
-  getAllCourses: () => api.get("/api/courses").catch(() => ({ data: [] })),
+  getAllCourses: () => api.get("/courses").catch(() => ({ data: [] })),
 };
 
 // 🩺 Health check endpoint
-export const healthCheck = () => api.get("/");
+export const healthCheck = () => api.get("/health");
 
 // ✅ Default export
 export default api;
