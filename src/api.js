@@ -1,7 +1,6 @@
-// ✅ api.js
 import axios from "axios";
 
-// ✅ Auto-detect environment and use .env variable (with fallback)
+// Use environment variable or fallback
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL ||
   (window.location.hostname === "localhost"
@@ -13,13 +12,13 @@ if (process.env.NODE_ENV === "development") {
   console.log("🌍 Current Hostname:", window.location.hostname);
 }
 
-// ✅ Create axios instance
+// Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 300000, // 5 minutes (for large file uploads)
+  timeout: 300000,
 });
 
-// ✅ Request interceptor: attach token + logs
+// Request interceptor
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -37,7 +36,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ✅ Response interceptor: log errors
+// Response interceptor
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -50,11 +49,7 @@ api.interceptors.response.use(
   }
 );
 
-//
-// ✅ Organized API Groups
-//
-
-// 🎥 Video APIs
+// Video APIs
 export const videoAPI = {
   getAllVideos: () => api.get("/videos"),
   uploadVideo: (formData) =>
@@ -64,33 +59,33 @@ export const videoAPI = {
   deleteVideo: (id) => api.delete(`/videos/${id}`),
 };
 
-// ✅ Approvals APIs
+// Approvals APIs
 export const approvalAPI = {
   getAllApprovals: () => api.get("/approvals").catch(() => ({ data: [] })),
 };
 
-// 🧠 Review APIs
+// Review APIs
 export const reviewAPI = {
   getAllReviews: () => api.get("/reviews").catch(() => ({ data: [] })),
 };
 
-// 📝 Quiz APIs
+// Quiz APIs
 export const quizAPI = {
   getAllQuizzes: () => api.get("/quizzes").catch(() => ({ data: [] })),
 };
 
-// 📚 Notes APIs
+// Notes APIs
 export const notesAPI = {
   getAllNotes: () => api.get("/notes").catch(() => ({ data: [] })),
 };
 
-// 🎓 Course APIs
+// Course APIs
 export const courseAPI = {
   getAllCourses: () => api.get("/courses").catch(() => ({ data: [] })),
 };
 
-// 🩺 Health check endpoint
+// Health check endpoint
 export const healthCheck = () => api.get("/health");
 
-// ✅ Default export
+// Default export
 export default api;
