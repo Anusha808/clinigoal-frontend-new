@@ -6,7 +6,7 @@ const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL ||
   (window.location.hostname === "localhost"
     ? "http://localhost:5000"
-    : "https://clinigoal-backend.onrender.com");  // No /api here
+    : "https://clinigoal-backend.onrender.com");
 
 if (process.env.NODE_ENV === "development") {
   console.log("🔧 API Base URL:", API_BASE_URL);
@@ -24,6 +24,7 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) config.headers.Authorization = `Bearer ${token}`;
+
     if (process.env.NODE_ENV === "development") {
       console.log(
         `🚀 API Call: ${config.method?.toUpperCase()} ${config.url}`,
