@@ -19,7 +19,6 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) config.headers.Authorization = `Bearer ${token}`;
-
     if (process.env.NODE_ENV === "development") {
       console.log(
         `🚀 API Call: ${config.method?.toUpperCase()} ${config.url}`,
