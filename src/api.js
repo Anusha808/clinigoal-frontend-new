@@ -1,47 +1,33 @@
 // ✅ src/api.js
 import axios from "axios";
 
-// 🌍 Use environment variable or fallback
+// Use environment variable or fallback
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL ||
   (window.location.hostname === "localhost"
     ? "http://localhost:5000"
     : "https://clinigoal-backend.onrender.com");
 
-// 🧩 Create axios instance
+// Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 300000, // 5 minutes
 });
 
-// 🔐 Request interceptor: attach token + log
+// Request interceptor: attach token if exists
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) config.headers.Authorization = `Bearer ${token}`;
-
-    if (process.env.NODE_ENV === "development") {
-      console.log(
-        `🚀 API Call: ${config.method?.toUpperCase()} ${config.url}`,
-        token ? "(with auth)" : "(no auth)"
-      );
-    }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// ⚠️ Response interceptor: log errors
+// Response interceptor: log errors
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    console.error("❌ API Error:", {
-      url: error?.config?.url,
-      status: error?.response?.status,
-      message: error?.response?.data?.message || error?.message,
-    });
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // 🎥 Video APIs
@@ -54,27 +40,27 @@ export const videoAPI = {
   deleteVideo: (id) => api.delete(`/videos/${id}`),
 };
 
-// ✅ Approvals APIs
+// ✅ Approvals API
 export const approvalAPI = {
   getAllApprovals: () => api.get("/approvals").catch(() => ({ data: [] })),
 };
 
-// 🧠 Review APIs
+// 🧠 Review API
 export const reviewAPI = {
   getAllReviews: () => api.get("/reviews").catch(() => ({ data: [] })),
 };
 
-// 📝 Quiz APIs
+// 📝 Quiz API
 export const quizAPI = {
   getAllQuizzes: () => api.get("/quizzes").catch(() => ({ data: [] })),
 };
 
-// 📚 Notes APIs
+// 📚 Notes API
 export const notesAPI = {
   getAllNotes: () => api.get("/notes").catch(() => ({ data: [] })),
 };
 
-// 🎓 Course APIs
+// 🎓 Course API
 export const courseAPI = {
   getAllCourses: () => api.get("/courses").catch(() => ({ data: [] })),
 };
