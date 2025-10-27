@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   FaHome,
   FaVideo,
@@ -30,8 +31,7 @@ import {
   FaPrint,
 } from "react-icons/fa";
 import "./UserDashboard.css";
-// Import the centralized API functions
-import { reviewAPI } from "../../api"; // Adjust the path if needed
+import { reviewAPI } from "../../api";
 
 // --- Helper Function for ObjectId Validation ---
 const isValidObjectId = (id) => {
@@ -804,6 +804,9 @@ const [user] = useState(() => {
   return { _id: "63f8b8e9a4b7c3d2e1f0a9b8", name: "Anusha Hegde" };
 });
 
+  // Add useNavigate hook for navigation
+  const navigate = useNavigate();
+
   // --- useEffect Hooks ---
 
   useEffect(() => {
@@ -977,6 +980,25 @@ const [user] = useState(() => {
     setCompletedSections(prev => ({ ...prev, [section]: true }));
   };
 
+  // Add logout function with confirmation alert
+  const handleLogout = () => {
+    // Show confirmation alert
+    const confirmLogout = window.confirm("Are you sure you want to logout?");
+    
+    if (confirmLogout) {
+      // Clear user data from localStorage
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("completedSections");
+      
+      // Show success message
+      alert("Logout successful! Redirecting to home page...");
+      
+      // Navigate to home page
+      navigate("/");
+    }
+  };
+
   const navItems = [
     { id: "dashboard", icon: <FaHome />, label: "Dashboard" },
     { id: "videos", icon: <FaVideo />, label: "Videos" },
@@ -1024,7 +1046,7 @@ const [user] = useState(() => {
               </button>
             );
           })}
-          <button onClick={() => alert("Logout successful!")}>
+          <button onClick={handleLogout}>
             <FaSignOutAlt /> {sidebarOpen && "Logout"}
           </button>
         </nav>
