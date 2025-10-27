@@ -4,276 +4,296 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import "./Home.css";
 import { useNavigate } from "react-router-dom";
-import TestAPIButton from "../../TestAPIButton";
-
+import {
+  FaChartLine,
+  FaUsers,
+  FaAward,
+  FaBook,
+  FaStar,
+} from "react-icons/fa";
 
 const Home = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    AOS.init({ duration: 1200, once: true });
+    AOS.init({ duration: 1000, once: true });
   }, []);
+
+  const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
+
+  // ✅ Fixed navigation logic
+  const handleLogin = (role) => {
+    if (role === "student") {
+      navigate("/login/user"); // ✅ Goes to User Login page
+    } else {
+      navigate("/login/admin"); // ✅ Goes to Admin Login page
+    }
+    setDropdownOpen(false);
+  };
 
   return (
     <div className="clinigoal-home">
       {/* ===== HEADER ===== */}
       <header className="header">
-        <div className="logo">
+        <div className="logo" onClick={() => navigate("/")}>
           Clinigoal<span>.</span>
         </div>
 
         <nav className="nav">
           <a href="#about">About</a>
+          <a href="#vision">Vision</a>
           <a href="#courses">Courses</a>
           <a href="#features">Features</a>
-          <a href="#testimonials">Stories</a>
-          <a href="#contact">Contact</a>
+          <a href="#testimonials">Testimonials</a>
         </nav>
 
-        {/* ===== DROPDOWN LOGIN MENU ===== */}
-        <div
-          className="dropdown"
-          onMouseEnter={() => setDropdownOpen(true)}
-          onMouseLeave={() => setDropdownOpen(false)}
-        >
-          <button className="btn-primary dropdown-toggle">Login ▾</button>
+        <div className="dropdown">
+          <button className="btn-login" onClick={toggleDropdown}>
+            Login
+          </button>
           {dropdownOpen && (
-            <motion.div
-              className="dropdown-menu"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
+            <div className="dropdown-menu">
               <button
                 className="dropdown-item"
-                onClick={() => navigate("/login/admin")}
+                onClick={() => handleLogin("admin")}
               >
-                🧑‍💼 Admin Login
+                Admin
               </button>
               <button
                 className="dropdown-item"
-                onClick={() => navigate("/login/user")}
+                onClick={() => handleLogin("student")}
               >
-                👨‍⚕️ User Login
+                Student
               </button>
-            </motion.div>
+            </div>
           )}
         </div>
       </header>
 
-      <br />
-      <br />
-
       {/* ===== HERO ===== */}
-      <section className="hero hero-white">
-        <motion.div
-          className="hero-text"
-          initial={{ opacity: 0, y: 60 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2 }}
-        >
-          <h1>
-            Empowering the <span>Future of Medicine</span>
-          </h1>
-          <br />
-          <p>
-            Clinigoal transforms medical education through 3D visuals,
-            AI-driven learning, and real-world case simulations.
-          </p>
-          <motion.button
-            className="btn-primary hero-btn"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => navigate("/login/user")}
-          >
-            Explore Programs
-          </motion.button>
-        </motion.div>
+      <section className="hero-section">
+        <div className="hero-container" data-aos="fade-up">
+          <div className="hero-content">
+            <h1 className="hero-title">Welcome to Clinigoal</h1>
+            <p className="hero-subtitle">
+              Empowering healthcare learning with AI-driven insights, video
+              tutorials, and community mentorship.
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              className="learn-btn"
+              onClick={() => navigate("/login/user")} // ✅ Goes to User Login page
+            >
+              Start Learning →
+            </motion.button>
+          </div>
 
-        <motion.img
-          src="https://images.pexels.com/photos/4386464/pexels-photo-4386464.jpeg"
-          alt="Medical Learning"
-          className="hero-image"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.4, duration: 1 }}
-        />
-
-        <div className="glass-circles">
-          <span className="glass blue"></span>
-          <span className="glass cyan"></span>
-          <span className="glass navy"></span>
-        </div>
-      </section>
-
-      {/* ===== TRUSTED BY ===== */}
-      <section className="trusted-by" data-aos="fade-up">
-        <h2>Trusted by Leading Medical Institutions</h2>
-        <div className="trust-marquee">
-          <div className="trust-track">
-            {[
-              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcST9ZjgyRYP-wbGTRs_qmfWyuItR7PiH6-dyA&s",
-              "https://media.istockphoto.com/id/520691843/photo/dollar-sign-on-blue-background.jpg?s=612x612&w=0&k=20&c=ZxFJfN_Y3khK1-6UT_zvwneCo0AGCa0gua0K6qbNTwk=",
-              "https://media.istockphoto.com/id/1476200876/photo/modern-stopwatch-cartoon-person-character-mascot-with-golden-medical-caduceus-symbol-3d.jpg?s=612x612&w=0&k=20&c=1RCIBPQaW-tUhn7EMRgl1LpJHDW8EHTsNwT1uYwGeTA=",
-              "https://images.pexels.com/photos/33016276/pexels-photo-33016276.jpeg",
-            ]
-              .flatMap((logo) => Array(5).fill(logo))
-              .map((logo, i) => (
-                <img key={i} src={logo} alt="Trusted Partner" />
-              ))}
+          {/* Hero image */}
+          <div className="hero-image" data-aos="zoom-in">
+            <img
+              src="https://images.pexels.com/photos/8621905/pexels-photo-8621905.jpeg"
+              alt="Clinigoal Learning"
+            />
           </div>
         </div>
       </section>
 
-      {/* ===== ABOUT ===== */}
-      <section id="about" className="about" data-aos="fade-up">
-        <h2>About Clinigoal</h2>
+      {/* ===== LEARNING QUOTE ===== */}
+      <div className="learning-quote" data-aos="fade-right">
+        <div className="quote-glow">
+          <marquee behavior="scroll" direction="left" scrollamount="6">
+            🌟 Learning is the heartbeat of growth — every lesson brings you
+            closer to mastery. 🌟
+          </marquee>
+        </div>
+      </div>
+
+      {/* ===== ABOUT US ===== */}
+      <section id="about" className="about-section" data-aos="fade-up">
+        <h2>About Us</h2>
+        <p className="about-desc">
+          Clinigoal is a next-generation e-learning platform dedicated to
+          medical and clinical education. We connect learners with expert
+          mentors and provide innovative tools to help you achieve your clinical
+          goals.
+        </p>
+
+        <div className="about-cards">
+          <div className="about-card" data-aos="zoom-in">
+            <div className="about-inner">
+              <div className="about-front">
+                <h3>Interactive</h3>
+                <p>Learn through videos, quizzes & case studies.</p>
+              </div>
+              <div className="about-back">
+                <p>
+                  Dive into expertly designed modules that make learning
+                  effective.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="about-card" data-aos="zoom-in" data-aos-delay="100">
+            <div className="about-inner">
+              <div className="about-front">
+                <h3>Certified</h3>
+                <p>Earn recognized credentials to boost your profile.</p>
+              </div>
+              <div className="about-back">
+                <p>Every completed course provides a verified certificate.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="about-card" data-aos="zoom-in" data-aos-delay="200">
+            <div className="about-inner">
+              <div className="about-front">
+                <h3>Mentor</h3>
+                <p>Get advice from experienced medical professionals.</p>
+              </div>
+              <div className="about-back">
+                <p>
+                  Our mentors are real-world clinicians sharing practical
+                  insights.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== OUR VISION ===== */}
+      <section id="vision" className="vision-section" data-aos="fade-up">
+        <h2>Our Vision</h2>
         <p>
-          Clinigoal is an advanced online medical learning ecosystem that
-          bridges the gap between theory and clinical practice. Our mission is
-          to train healthcare professionals through immersive, visual, and
-          interactive learning experiences.
+          To revolutionize healthcare education by integrating technology,
+          personalized mentorship, and interactive learning experiences.
         </p>
       </section>
 
-      {/* ===== COURSES ===== */}
-      <section id="courses" className="courses" data-aos="fade-up">
-        <h2>Courses & Learning Paths</h2>
-        <div className="course-grid">
-          {[
-            "BioInformatics",
-            "Medical Coding",
-            "Pharmainfomatics",
-            "Clinical course",
-          ].map((title, i) => (
-            <motion.div
-              key={i}
-              className="course-card"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 200 }}
-            >
-              <h3>{title}</h3>
-              <p>
-                Structured modules designed to enhance medical understanding
-                using interactive 3D visuals and assessments.
-              </p>
-              <button
-                className="btn-outline"
-                onClick={() => navigate("/login/user")}
-              >
-                Learn More
-              </button>
-            </motion.div>
-          ))}
+      {/* ===== OUR COURSES ===== */}
+      <section id="courses" className="courses-section" data-aos="fade-up">
+        <h2>Our Courses</h2>
+        <p className="courses-desc">
+          Explore a variety of healthcare programs tailored for your success.
+        </p>
+        <div className="courses-grid">
+          <div className="course-card" data-aos="zoom-in">
+            <h3>Clinical Anatomy</h3>
+            <p>
+              Master human anatomy through interactive 3D models and expert
+              videos.
+            </p>
+          </div>
+
+          <div className="course-card" data-aos="zoom-in" data-aos-delay="150">
+            <h3>Pharmacology</h3>
+            <p>Understand drug mechanisms, interactions, and therapeutic uses.</p>
+          </div>
+
+          <div className="course-card" data-aos="zoom-in" data-aos-delay="300">
+            <h3>Clinical Diagnostics</h3>
+            <p>
+              Learn diagnostic techniques and modern lab interpretations.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* ===== FEATURES ===== */}
-      <section id="features" className="features" data-aos="fade-up">
-        <h2>Platform Features</h2>
+      <section id="features" className="features-section" data-aos="fade-up">
+        <h2>Key Features</h2>
         <div className="feature-grid">
-          <div className="feature">
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png"
-              alt="AI"
-            />
-            <h4>AI-Guided Study</h4>
-            <p>Smart recommendations based on your learning progress.</p>
+          <div className="feature-card">
+            <FaChartLine className="icon" />
+            <h4>Progress Tracking</h4>
+            <p>Monitor your learning milestones in real-time.</p>
           </div>
-          <div className="feature">
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/2909/2909769.png"
-              alt="3D"
-            />
-            <h4>3D Anatomy Models</h4>
-            <p>
-              Visualize the human body like never before with interactive 3D
-              models.
-            </p>
+          <div className="feature-card">
+            <FaUsers className="icon" />
+            <h4>Community Learning</h4>
+            <p>Engage with peers and mentors through live sessions.</p>
           </div>
-          <div className="feature">
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-              alt="Assessments"
-            />
-            <h4>Interactive Assessments</h4>
-            <p>
-              Engaging case studies and challenges to test your expertise.
-            </p>
+          <div className="feature-card">
+            <FaAward className="icon" />
+            <h4>Certification</h4>
+            <p>Earn globally recognized certifications after completion.</p>
+          </div>
+          <div className="feature-card">
+            <FaBook className="icon" />
+            <h4>Notes & Quizzes</h4>
+            <p>Access curated materials and test your understanding.</p>
           </div>
         </div>
       </section>
+
+      {/* ===== MOVING LINE SECTION ===== */}
+      <div className="moving-line-section" data-aos="fade-right">
+        <div className="moving-line-text">
+          🌟 Learning never stops — at Clinigoal, every step takes you closer to
+          mastery.
+        </div>
+      </div>
 
       {/* ===== TESTIMONIALS ===== */}
-      <section id="testimonials" className="testimonials" data-aos="fade-up">
-        <h2>What Students Say</h2>
-        <div className="testimonial-slider">
-          <motion.div className="testimonial-card" whileHover={{ scale: 1.02 }}>
-            <p>
-              “Clinigoal changed the way I study. Visuals made everything so
-              much easier to understand!”
-            </p>
-            <h4>– Aisha Khan</h4>
-          </motion.div>
-          <motion.div className="testimonial-card" whileHover={{ scale: 1.02 }}>
-            <p>
-              “I never thought online medical learning could be this engaging
-              and practical.”
-            </p>
-            <h4>– Rahul Sharma</h4>
-          </motion.div>
+      <section
+        id="testimonials"
+        className="testimonials-section"
+        data-aos="zoom-in"
+      >
+        <h2>Testimonials</h2>
+        <div className="testimonials-grid">
+          <div className="testimonial-card">
+            <FaStar color="#FFD700" />
+            <p>“Clinigoal helped me to achieve my dream.”</p>
+            <h4>- Nandan</h4>
+          </div>
+          <div className="testimonial-card">
+            <FaStar color="#FFD700" />
+            <p>“Clinigoal guided me through my internship with structured learning.”</p>
+            <h4>- Sujal</h4>
+          </div>
+          <div className="testimonial-card">
+            <FaStar color="#FFD700" />
+            <p>“An amazing platform for medical learners and educators.”</p>
+            <h4>- Shreya</h4>
+          </div>
         </div>
       </section>
-
-      {/* ===== CONTACT ===== */}
-      <section id="contact" className="contact" data-aos="fade-up">
-        <h2>Contact Us</h2>
-        <p>Reach out for partnerships, support, or course inquiries.</p>
-        <form className="contact-form">
-          <input type="text" placeholder="Your Name" required />
-          <input type="email" placeholder="Your Email" required />
-          <textarea placeholder="Your Message" required></textarea>
-          <button className="btn-primary">Send Message</button>
-        </form>
-      </section>
-
-
-<TestAPIButton />
 
       {/* ===== FOOTER ===== */}
       <footer className="footer">
-        <div className="footer-section">
-          <h3>About Clinigoal</h3>
-          <p>
-            Clinigoal revolutionizes medical education through AI-driven
-            courses, immersive visuals, and expert mentorship.
-          </p>
-        </div>
+        <div className="footer-container">
+          <div className="footer-col">
+            <h3>Clinigoal</h3>
+            <p>Where learning meets innovation.</p>
+          </div>
 
-        <div className="footer-section">
-          <h3>Quick Links</h3>
-          <a href="#about">About</a>
-          <a href="#courses">Courses</a>
-          <a href="#features">Features</a>
-          <a href="#contact">Contact</a>
-        </div>
+          <div className="footer-col">
+            <h3>Links</h3>
+            <a href="#about">About</a>
+            <a href="#vision">Vision</a>
+            <a href="#features">Features</a>
+            <a href="#courses">Courses</a>
+          </div>
 
-        <div className="footer-section">
-          <h3>Contact Info</h3>
-          <p>Email: support@clinigoal.com</p>
-          <p>Phone: +91 98765 43210</p>
-          <div className="social-icons">
-            <i className="fab fa-facebook-f"></i>
-            <i className="fab fa-twitter"></i>
-            <i className="fab fa-linkedin-in"></i>
-            <i className="fab fa-instagram"></i>
+          <div className="footer-col">
+            <h3>Address</h3>
+            <p className="footer-address">📍 123 Health Avenue, Bengaluru, India</p>
+            <p className="footer-phone">📞 +91 98765 43210</p>
+            <p className="footer-email">✉️ support@clinigoal.com</p>
+          </div>
+
+          <div className="footer-col">
+            <h3>Follow Us</h3>
+            <a href="#">Instagram</a>
+            <a href="#">LinkedIn</a>
+            <a href="#">Twitter</a>
           </div>
         </div>
-
-        <div className="footer-bottom">
-          <p>© 2025 Clinigoal — Transforming Medical Education</p>
-        </div>
+        <div className="footer-line"></div>
       </footer>
     </div>
   );
