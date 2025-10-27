@@ -2,7 +2,18 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
-import { FaFileUpload, FaEdit, FaTrash, FaEye, FaBook } from "react-icons/fa";
+import { 
+  FaFileUpload, 
+  FaEdit, 
+  FaTrash, 
+  FaEye, 
+  FaBook, 
+  FaTimes,
+  FaSpinner,
+  FaCloud,
+  FaFolder,
+  FaCheck
+} from "react-icons/fa";
 import "./AdminNoteManagement.css";
 
 /* Dynamic API URL */
@@ -17,6 +28,8 @@ const AdminNoteManagement = () => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [editNote, setEditNote] = useState(null);
+  const [activeView, setActiveView] = useState("upload");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchNotes();
@@ -29,7 +42,7 @@ const AdminNoteManagement = () => {
       const data = res.data.notes || res.data || [];
       setNotes(Array.isArray(data) ? data : []);
     } catch (error) {
-      Swal.fire("❌ Error", "Failed to fetch notes.", "error");
+      Swal.fire("Error", "Failed to fetch notes.", "error");
     } finally {
       setLoading(false);
     }
@@ -39,23 +52,23 @@ const AdminNoteManagement = () => {
     e.preventDefault();
 
     if (!form.title.trim() || !form.courseName.trim()) {
-      Swal.fire("⚠️ Warning", "Please fill in all fields.", "warning");
+      Swal.fire("Warning", "Please fill in all fields.", "warning");
       return;
     }
 
     if (!editNote && !file) {
-      Swal.fire("⚠️ Warning", "Please select a file to upload.", "warning");
+      Swal.fire("Warning", "Please select a file to upload.", "warning");
       return;
     }
 
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        Swal.fire("⚠️ File Too Large", "Max size is 10MB.", "warning");
+        Swal.fire("File Too Large", "Max size is 10MB.", "warning");
         return;
       }
       if (!/\.(pdf|doc|docx|ppt|pptx)$/i.test(file.name)) {
         Swal.fire(
-          "⚠️ Invalid File",
+          "Invalid File",
           "Only PDF, DOC, DOCX, PPT, PPTX allowed.",
           "warning"
         );
@@ -69,17 +82,17 @@ const AdminNoteManagement = () => {
     if (file) formData.append("note", file);
 
     try {
-      setLoading(true);
+      setIsSubmitting(true);
       if (editNote) {
         await axios.put(`${API_BASE_URL}/notes/${editNote._id}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         Swal.fire({
           icon: "success",
-          title: "✅ Note Updated",
+          title: "Note Updated",
           text: `"${form.title}" updated successfully.`,
-          showConfirmButton: false,
-          timer: 1800,
+          timer: 2000,
+          showConfirmButton: false
         });
       } else {
         await axios.post(`${API_BASE_URL}/notes/upload`, formData, {
@@ -87,10 +100,10 @@ const AdminNoteManagement = () => {
         });
         Swal.fire({
           icon: "success",
-          title: "✅ Note Uploaded",
+          title: "Note Uploaded",
           text: `"${form.title}" added successfully.`,
-          showConfirmButton: false,
-          timer: 1800,
+          timer: 2000,
+          showConfirmButton: false
         });
       }
       setForm({ title: "", courseName: "" });
@@ -98,44 +111,38 @@ const AdminNoteManagement = () => {
       setEditNote(null);
       fetchNotes();
     } catch (error) {
-      Swal.fire("❌ Error", "Failed to upload note.", "error");
+      Swal.fire("Error", "Failed to upload note.", "error");
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   const handleEdit = (note) => {
     setEditNote(note);
     setForm({ title: note.title, courseName: note.courseName });
-    Swal.fire({
-      icon: "info",
-      title: "✏️ Edit Mode Enabled",
-      text: `You can now edit "${note.title}".`,
-      showConfirmButton: false,
-      timer: 1800,
-    });
+    setActiveView("upload");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDelete = async (id) => {
     const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "This note will be permanently deleted!",
+      title: "Delete this note?",
+      text: "This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonColor: "#e74c3c",
+      cancelButtonColor: "#95a5a6",
+      confirmButtonText: "Yes, delete it"
     });
 
-    if (!result.isConfirmed) return;
-
-    try {
-      await axios.delete(`${API_BASE_URL}/notes/${id}`);
-      Swal.fire("🗑️ Deleted!", "The note has been removed.", "success");
-      fetchNotes();
-    } catch {
-      Swal.fire("❌ Error", "Failed to delete note.", "error");
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`${API_BASE_URL}/notes/${id}`);
+        Swal.fire("Deleted!", "Note has been removed.", "success");
+        fetchNotes();
+      } catch {
+        Swal.fire("Error", "Failed to delete note.", "error");
+      }
     }
   };
 
@@ -147,137 +154,257 @@ const AdminNoteManagement = () => {
     Swal.fire({
       title: note.title,
       html: `
-        <p><strong>Course:</strong> ${note.courseName}</p>
-        <a href="${fileUrl}" target="_blank" style="color:#3085d6; text-decoration:none; font-weight:bold;">
-          📄 Click to View Note
-        </a>
+        <div style="text-align: left; padding: 20px;">
+          <p style="margin-bottom: 15px;"><strong>Course:</strong> ${note.courseName}</p>
+          <a href="${fileUrl}" target="_blank" 
+             style="display: inline-block; padding: 10px 20px; background: #3498db; color: white; 
+                    text-decoration: none; border-radius: 5px; margin-top: 10px;">
+            📄 View Document
+          </a>
+        </div>
       `,
-      icon: "info",
-      confirmButtonText: "Close",
-      width: 500,
+      showConfirmButton: false,
+      width: 500
     });
   };
 
   return (
-    <div className="admin-note-management">
-      <motion.h2
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <FaBook className="icon" /> Note Management
-      </motion.h2>
-
-      <motion.form
-        className="note-form"
-        onSubmit={handleSubmit}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <div className="input-row">
-          <div className="form-group">
-            <label>Note Title</label>
-            <input
-              type="text"
-              placeholder="Enter Note Title"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Course Name</label>
-            <input
-              type="text"
-              placeholder="Enter Course Name"
-              value={form.courseName}
-              onChange={(e) => setForm({ ...form, courseName: e.target.value })}
-            />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>Upload File</label>
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx,.ppt,.pptx"
-            onChange={(e) => setFile(e.target.files[0])}
-          />
-          {file && (
-            <p className="file-name">
-              📎 {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-            </p>
-          )}
-        </div>
-
-        <motion.button
-          type="submit"
-          className="add-btn"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          disabled={loading}
+    <div className="note-management">
+      <div className="container">
+        {/* Header */}
+        <motion.header 
+          className="page-header"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          <FaFileUpload /> {loading ? "Saving..." : editNote ? "Update Note" : "Upload Note"}
-        </motion.button>
+          <div className="header-content">
+            <div className="header-icon">
+              <FaBook />
+            </div>
+            <div>
+              <h1>Note Management</h1>
+              <p>Upload and organize course materials</p>
+            </div>
+          </div>
+          <div className="header-stats">
+            <div className="stat-item">
+              <span className="stat-number">{notes.length}</span>
+              <span className="stat-label">Total Notes</span>
+            </div>
+          </div>
+        </motion.header>
 
-        {editNote && (
-          <button
-            type="button"
-            className="cancel-btn"
-            onClick={() => {
-              setEditNote(null);
-              setForm({ title: "", courseName: "" });
-              setFile(null);
-              Swal.fire("❎ Edit Cancelled", "You are now in upload mode.", "info");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
+        {/* Navigation */}
+        <nav className="view-nav">
+          <button 
+            className={`nav-btn ${activeView === "upload" ? "active" : ""}`}
+            onClick={() => setActiveView("upload")}
           >
-            Cancel Edit
+            <FaCloud /> {editNote ? "Edit Note" : "Upload Note"}
           </button>
-        )}
-      </motion.form>
+          <button 
+            className={`nav-btn ${activeView === "library" ? "active" : ""}`}
+            onClick={() => setActiveView("library")}
+          >
+            <FaFolder /> Note Library ({notes.length})
+          </button>
+        </nav>
 
-      <div className="note-table-container">
-        <h3>📂 Uploaded Notes</h3>
-        {loading ? (
-          <p>Loading notes...</p>
-        ) : notes.length > 0 ? (
-          <table className="note-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Course</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {notes.map((note, index) => (
-                <motion.tr
-                  key={note._id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <td>{note.title}</td>
-                  <td>{note.courseName}</td>
-                  <td className="action-buttons">
-                    <button className="view-btn" onClick={() => handleView(note)}>
-                      <FaEye /> View
-                    </button>
-                    <button className="edit-btn" onClick={() => handleEdit(note)}>
-                      <FaEdit /> Edit
-                    </button>
-                    <button className="delete-btn" onClick={() => handleDelete(note._id)}>
-                      <FaTrash /> Delete
-                    </button>
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="no-notes">No notes uploaded yet.</p>
+        {/* Upload Form */}
+        {activeView === "upload" && (
+          <motion.section 
+            className="upload-section"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="card">
+              <div className="card-header">
+                <h2>{editNote ? "Edit Note" : "Upload New Note"}</h2>
+              </div>
+              
+              <form onSubmit={handleSubmit} className="upload-form">
+                <div className="form-grid">
+                  <div className="form-field">
+                    <label>Note Title</label>
+                    <input
+                      type="text"
+                      placeholder="Enter note title"
+                      value={form.title}
+                      onChange={(e) => setForm({ ...form, title: e.target.value })}
+                      className="form-input"
+                    />
+                  </div>
+                  
+                  <div className="form-field">
+                    <label>Course Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g., Mathematics 101"
+                      value={form.courseName}
+                      onChange={(e) => setForm({ ...form, courseName: e.target.value })}
+                      className="form-input"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-field">
+                  <label>Upload File</label>
+                  <div className="file-upload">
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.ppt,.pptx"
+                      onChange={(e) => setFile(e.target.files[0])}
+                      id="file-input"
+                      className="file-input"
+                    />
+                    <label htmlFor="file-input" className="file-label">
+                      <FaFileUpload className="upload-icon" />
+                      <span>Choose file or drag and drop</span>
+                      <small>PDF, DOC, DOCX, PPT, PPTX (Max 10MB)</small>
+                    </label>
+                    {file && (
+                      <div className="file-selected">
+                        <FaCheck className="check-icon" />
+                        <span>{file.name}</span>
+                        <small>({(file.size / 1024 / 1024).toFixed(2)} MB)</small>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <motion.button
+                    type="submit"
+                    className="btn btn-primary"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <FaSpinner className="spinner" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <FaFileUpload />
+                        {editNote ? "Update Note" : "Upload Note"}
+                      </>
+                    )}
+                  </motion.button>
+                  
+                  {editNote && (
+                    <motion.button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => {
+                        setEditNote(null);
+                        setForm({ title: "", courseName: "" });
+                        setFile(null);
+                      }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <FaTimes />
+                      Cancel
+                    </motion.button>
+                  )}
+                </div>
+              </form>
+            </div>
+          </motion.section>
+        )}
+
+        {/* Note Library */}
+        {activeView === "library" && (
+          <motion.section 
+            className="library-section"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="card">
+              <div className="card-header">
+                <h2>Note Library</h2>
+              </div>
+              
+              {loading ? (
+                <div className="loading">
+                  <FaSpinner className="spinner" />
+                  <p>Loading notes...</p>
+                </div>
+              ) : notes.length > 0 ? (
+                <div className="notes-grid">
+                  {notes.map((note, index) => (
+                    <motion.div 
+                      key={note._id} 
+                      className="note-item"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      whileHover={{ y: -5 }}
+                    >
+                      <div className="note-content">
+                        <div className="note-icon">
+                          <FaBook />
+                        </div>
+                        <div className="note-info">
+                          <h3>{note.title}</h3>
+                          <p>{note.courseName}</p>
+                        </div>
+                      </div>
+                      <div className="note-actions">
+                        <motion.button
+                          className="action-btn view"
+                          onClick={() => handleView(note)}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          title="View"
+                        >
+                          <FaEye />
+                        </motion.button>
+                        <motion.button
+                          className="action-btn edit"
+                          onClick={() => handleEdit(note)}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          title="Edit"
+                        >
+                          <FaEdit />
+                        </motion.button>
+                        <motion.button
+                          className="action-btn delete"
+                          onClick={() => handleDelete(note._id)}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          title="Delete"
+                        >
+                          <FaTrash />
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="empty-state">
+                  <FaFolder className="empty-icon" />
+                  <h3>No notes uploaded</h3>
+                  <p>Start by uploading your first course material</p>
+                  <motion.button
+                    className="btn btn-primary"
+                    onClick={() => setActiveView("upload")}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <FaFileUpload />
+                    Upload First Note
+                  </motion.button>
+                </div>
+              )}
+            </div>
+          </motion.section>
         )}
       </div>
     </div>

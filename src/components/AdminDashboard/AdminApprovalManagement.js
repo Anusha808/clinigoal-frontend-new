@@ -17,7 +17,8 @@ const AdminApprovalManagement = () => {
       if (!isAutoRefresh) setLoading(true);
       else setRefreshing(true);
 
-      const { data } = await approvalAPI.getAllApprovals();
+      // ✅ FIX: Changed from .getAllApprovals() to .getAll() to match the function name in api.js
+      const { data } = await approvalAPI.getAll();
 
       const currentApprovals = Array.isArray(data.enrollments)
         ? data.enrollments
@@ -99,13 +100,29 @@ const AdminApprovalManagement = () => {
     <div className="approval-management">
       <div className="page-header">
         <h2 className="page-title">📋 Enrollment Approvals</h2>
+        {/* ✅ UPDATED: New Attractive Refresh Button */}
         <button
           type="button"
           onClick={() => fetchApprovals()}
-          className="refresh-btn"
+          className={`refresh-btn ${refreshing ? 'spinning' : ''}`}
           disabled={refreshing}
+          title="Refresh Data"
         >
-          {refreshing ? "Refreshing..." : "🔄 Refresh"}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M23 4v6h-6" />
+            <path d="M1 20v-6h6" />
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+          </svg>
         </button>
       </div>
 

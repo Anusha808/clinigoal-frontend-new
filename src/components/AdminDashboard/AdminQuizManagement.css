@@ -1,222 +1,448 @@
-/* 🌿 Container */
-.admin-quiz-management {
-  padding: 30px;
-  background: linear-gradient(135deg, #f8fbff 0%, #eef9f1 100%);
-  border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-  font-family: "Poppins", sans-serif;
-  animation: fadeIn 0.4s ease-in;
+/* AdminQuizManagement.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* 🧩 Header */
-.admin-quiz-management h2 {
+.quiz-management {
+  min-height: 100vh;
+  background: #f8f9fa;
+  font-family: 'Inter', sans-serif;
+  color: #212529;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Header */
+.page-header {
   text-align: center;
-  color: #0078ff;
-  font-size: 28px;
+  margin-bottom: 3rem;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 0.5rem;
+}
+
+.page-header p {
+  font-size: 1.1rem;
+  color: #6c757d;
+}
+
+/* View Toggle */
+.view-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.toggle-btn {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #495057;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
 }
 
-.icon {
-  color: #00b37a;
+.toggle-btn:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
 }
 
-/* 📋 Form */
-.quiz-form {
-  background: #fff;
+.toggle-btn.active {
+  background: #0d6efd;
+  border-color: #0d6efd;
+  color: white;
+}
+
+/* Card */
+.card {
+  background: white;
   border-radius: 12px;
-  padding: 25px;
-  margin-top: 20px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
 }
 
-.input-row {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
+.card-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+  background: #f8f9fa;
+}
+
+.card-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #212529;
+}
+
+/* Form */
+.quiz-form {
+  padding: 2rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .form-group {
-  flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
 }
 
 .form-group label {
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 5px;
+  font-weight: 500;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-group label svg {
+  color: #6c757d;
+  font-size: 0.9rem;
 }
 
 .form-group input,
 .form-group textarea {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  transition: 0.2s;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #0078ff;
-  box-shadow: 0 0 6px rgba(0, 120, 255, 0.2);
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
 }
 
-/* 🧩 Options */
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Options */
 .options-section {
-  margin-top: 15px;
+  margin: 2rem 0;
 }
 
-.option-line {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 8px;
-}
-
-.correct-label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 14px;
-}
-
-/* ➕ Add Button */
-.add-btn {
-  background: linear-gradient(90deg, #0078ff, #00b37a);
-  border: none;
-  color: #fff;
+.options-section h3 {
+  font-size: 1.2rem;
   font-weight: 600;
-  font-size: 16px;
-  padding: 12px 20px;
-  border-radius: 10px;
-  cursor: pointer;
-  width: 100%;
-  margin-top: 20px;
-  transition: all 0.3s ease;
+  color: #212529;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e9ecef;
 }
 
-.add-btn:hover {
-  background: linear-gradient(90deg, #0062cc, #00995f);
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.option-group {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.option-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.option-label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.radio-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.radio-container input[type="radio"] {
+  display: none;
+}
+
+.checkmark {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ced4da;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.radio-container input[type="radio"]:checked + .checkmark {
+  background: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.checkmark svg {
+  color: white;
+  font-size: 10px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.radio-container input[type="radio"]:checked + .checkmark svg {
+  opacity: 1;
+}
+
+.option-group input[type="text"] {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+/* Buttons */
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: #0d6efd;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #0b5ed7;
   transform: translateY(-1px);
 }
 
-/* 📊 Quiz Table */
-.quiz-table-container {
-  margin-top: 35px;
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.quiz-table {
-  width: 100%;
-  border-collapse: collapse;
+.btn-secondary {
+  background: #6c757d;
+  color: white;
 }
 
-.quiz-table th {
-  background: #0078ff;
-  color: #fff;
-  text-align: left;
-  padding: 12px;
+.btn-secondary:hover {
+  background: #5c636a;
+  transform: translateY(-1px);
 }
 
-.quiz-table td {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-  vertical-align: middle;
-}
-
-/* 🧭 Button Row */
-.quiz-table td.action-buttons {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: nowrap;
-}
-
-.quiz-table tr:hover {
-  background: #f8faff;
-}
-
-/* 🎛️ Buttons */
-.view-btn,
-.edit-btn,
-.delete-btn {
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
   border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  font-weight: 500;
-  transition: 0.3s;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-
-/* 👁️ View */
-.view-btn {
-  background: #e9f3ff;
-  color: #007bff;
-}
-.view-btn:hover {
-  background: #007bff;
-  color: #fff;
-}
-
-/* ✏️ Edit */
-.edit-btn {
-  background: #fff3cd;
-  color: #b58900;
-}
-.edit-btn:hover {
-  background: #ffda6a;
-  color: #664d00;
-}
-
-/* 🗑️ Delete */
-.delete-btn {
-  background: #fde2e2;
-  color: #d93025;
-}
-.delete-btn:hover {
-  background: #f8caca;
-  color: #a01515;
-}
-
-/* ⚠️ Error Message */
-.error-message {
-  background: #ffecec;
-  color: #b30000;
-  padding: 10px;
   border-radius: 6px;
-  text-align: center;
-  margin-top: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
-/* 🕳️ Empty State */
-.no-quizzes {
-  text-align: center;
-  color: #777;
-  margin-top: 10px;
-  font-style: italic;
+.btn-edit {
+  background: #198754;
+  color: white;
 }
 
-/* 🌟 Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
+.btn-edit:hover {
+  background: #157347;
+}
+
+.btn-delete {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #bb2d3b;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Quiz List */
+.quiz-list {
+  padding: 1rem;
+}
+
+.quiz-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.quiz-item:last-child {
+  border-bottom: none;
+}
+
+.quiz-item:hover {
+  background: #f8f9fa;
+}
+
+.quiz-info h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 0.25rem;
+}
+
+.quiz-info .course {
+  color: #6c757d;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.question-count {
+  display: inline-block;
+  background: #e9ecef;
+  color: #495057;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.quiz-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Loading and Empty States */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  color: #6c757d;
+}
+
+.loading .spinner {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem;
+  color: #6c757d;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #495057;
+}
+
+.empty-state p {
+  margin-bottom: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .page-header h1 {
+    font-size: 2rem;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .options-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .quiz-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .quiz-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .view-toggle {
+    flex-direction: column;
+  }
+  
+  .toggle-btn {
+    width: 100%;
+    justify-content: center;
   }
 }

@@ -3,10 +3,12 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import "./UserRegister.css";
 
+// ✅ Automatically use environment variable or fallback for localhost
 const API_BASE_URL =
-  window.location.hostname === "localhost"
+  process.env.REACT_APP_API_BASE_URL ||
+  (window.location.hostname === "localhost"
     ? "http://localhost:5000/api"
-    : "https://clinigoal-server-side.onrender.com/api";
+    : "https://clinigoal-backend-yfu3.onrender.com/api");
 
 const UserRegister = () => {
   const navigate = useNavigate();

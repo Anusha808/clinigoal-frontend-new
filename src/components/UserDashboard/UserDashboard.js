@@ -30,6 +30,13 @@ import {
   FaPrint,
 } from "react-icons/fa";
 import "./UserDashboard.css";
+// Import the centralized API functions
+import { reviewAPI } from "../../api"; // Adjust the path if needed
+
+// --- Helper Function for ObjectId Validation ---
+const isValidObjectId = (id) => {
+  return typeof id === 'string' && id.length === 24 && /^[0-9a-fA-F]+$/.test(id);
+};
 
 // --- Refactored Components for Better Readability ---
 
@@ -267,7 +274,7 @@ const AssignmentComponent = ({ onAssignmentComplete }) => {
       setError("Please select a file to upload");
       return;
     }
-<br></br>
+
     const formData = new FormData();
     formData.append("assignment", file);
 
@@ -275,6 +282,7 @@ const AssignmentComponent = ({ onAssignmentComplete }) => {
       setUploading(true);
       setError(null);
       
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       setUploadSuccess(true);
@@ -290,9 +298,9 @@ const AssignmentComponent = ({ onAssignmentComplete }) => {
   return (
     <div className="assignment-content">
       <p>Complete the assignment below to unlock the quiz.</p>
-      <div className="assignment-placeholder"><br></br>
-        <h4>Assignment: Practical Application</h4><br></br>
-        <p>Submit your work by following the guidelines provided in the course materials.</p><br></br>
+      <div className="assignment-placeholder">
+        <h4>Assignment: Practical Application</h4>
+        <p>Submit your work by following the guidelines provided in the course materials.</p>
         
         <div className="assignment-upload">
           <input 
@@ -300,10 +308,10 @@ const AssignmentComponent = ({ onAssignmentComplete }) => {
             id="assignment-file" 
             style={{display: 'none'}} 
             onChange={handleFileChange}
-          /><br></br>
+          />
           <label htmlFor="assignment-file" className="upload-btn">
             {file ? file.name : "Choose File"}
-          </label><br></br>
+          </label>
           <button 
             className="submit-assignment-btn" 
             onClick={handleSubmit}
@@ -331,8 +339,8 @@ const AssignmentComponent = ({ onAssignmentComplete }) => {
 
 // Certificate Component with Corrected Canvas Lifecycle
 const CertificateComponent = ({ course, userName, completedSections }) => {
-  const [generating, setGenerating] = useState(false); // For the button's loading state
-  const [isGenerating, setIsGenerating] = useState(false); // To control canvas rendering
+  const [generating, setGenerating] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [certificate, setCertificate] = useState(null);
   const [error, setError] = useState(null);
   const [showCertificate, setShowCertificate] = useState(false);
@@ -347,8 +355,6 @@ const CertificateComponent = ({ course, userName, completedSections }) => {
     day: 'numeric' 
   });
 
-  // This effect now runs when `isGenerating` becomes true.
-  // This ensures the canvas element is already in the DOM.
   useEffect(() => {
     if (!isGenerating) return;
 
@@ -356,7 +362,6 @@ const CertificateComponent = ({ course, userName, completedSections }) => {
       console.log("useEffect: Attempting to draw certificate...");
       const canvas = canvasRef.current;
       if (!canvas) {
-        // This should now be much less likely, but as a final safeguard:
         console.error("useEffect: Canvas element not found even after render.");
         setError("Canvas element not found. Please try again.");
         setGenerating(false);
@@ -370,11 +375,10 @@ const CertificateComponent = ({ course, userName, completedSections }) => {
           throw new Error("Failed to get 2D context from canvas.");
         }
         
-        canvas.width = 500;
-        canvas.height = 350;
+        canvas.width = 1200;
+        canvas.height = 850;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // --- Drawing Logic (same as before) ---
         const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
         gradient.addColorStop(0, '#f8f9fa');
         gradient.addColorStop(1, '#e9ecef');
@@ -448,8 +452,6 @@ const CertificateComponent = ({ course, userName, completedSections }) => {
         ctx.fillText('Clinigoal Educational Platform', 800, 700);
         ctx.fillText('Issuing Authority', 800, 720);
         
-        // --- End Drawing Logic ---
-
         console.log("useEffect: Drawing complete. Attempting toDataURL...");
         const imageUrl = canvas.toDataURL('image/png');
         console.log("useEffect: Image data URL generated successfully.");
@@ -476,7 +478,6 @@ const CertificateComponent = ({ course, userName, completedSections }) => {
         setShowFallbackCertificate(true);
         setError("Canvas generation failed. Displaying a simple certificate instead.");
       } finally {
-        // IMPORTANT: Reset both states after the operation is complete
         setGenerating(false);
         setIsGenerating(false);
       }
@@ -484,7 +485,7 @@ const CertificateComponent = ({ course, userName, completedSections }) => {
 
     drawCertificate();
 
-  }, [isGenerating, course, userName, completionDate]); // Dependencies
+  }, [isGenerating, course, userName, completionDate]);
 
   const generateCertificate = async () => {
     if (!allSectionsCompleted) {
@@ -495,7 +496,6 @@ const CertificateComponent = ({ course, userName, completedSections }) => {
     setError(null);
     setShowFallbackCertificate(false);
     setShowCertificate(false);
-    // This state change will trigger the useEffect to run the drawing logic
     setIsGenerating(true);
   };
 
@@ -580,7 +580,6 @@ const CertificateComponent = ({ course, userName, completedSections }) => {
           {error && <div className="error-message">{error}</div>}
         </div>
       ) : showFallbackCertificate ? (
-        // --- FALLBACK CERTIFICATE MODAL ---
         <div className="certificate-modal-overlay">
           <div className="certificate-modal">
             <div className="certificate-modal-header">
@@ -622,7 +621,6 @@ const CertificateComponent = ({ course, userName, completedSections }) => {
           </div>
         </div>
       ) : (
-        // --- CANVAS CERTIFICATE MODAL ---
         <div className="certificate-modal-overlay">
           <div className="certificate-modal">
             <div className="certificate-modal-header">
@@ -651,8 +649,6 @@ const CertificateComponent = ({ course, userName, completedSections }) => {
         </div>
       )}
       
-      {/* --- KEY CHANGE --- */}
-      {/* The canvas is now rendered whenever isGenerating is true, ensuring it exists in the DOM before useEffect runs. */}
       {isGenerating && (
         <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
           <canvas ref={canvasRef} width={1200} height={850} />
@@ -662,22 +658,28 @@ const CertificateComponent = ({ course, userName, completedSections }) => {
   );
 };
 
-// Review Component
-const ReviewComponent = ({ course, onReviewSubmit }) => {
+// ✅ FINAL CORRECTED Review Component
+const ReviewComponent = ({ course, user }) => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (rating === 0) {
       setError("Please select a rating");
       return;
     }
-
     if (review.trim() === "") {
       setError("Please write a review");
+      return;
+    }
+
+    // ✅ FIX: Add validation for ObjectIds before sending the request
+    if (!isValidObjectId(user._id) || !isValidObjectId(course._id)) {
+      setError("Invalid user or course ID. Cannot submit review. Please refresh the page.");
       return;
     }
 
@@ -685,13 +687,31 @@ const ReviewComponent = ({ course, onReviewSubmit }) => {
       setSubmitting(true);
       setError(null);
       
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const reviewData = {
+        userId: user._id,
+        userName: user.name,
+        courseId: course._id,
+        courseTitle: course.title,
+        rating: rating,
+        review: review.trim(),
+      };
+      console.log("Submitting review data:", reviewData);
+
+      // ✅ FIX: Use the reviewAPI from the API file
+      const response = await reviewAPI.create(reviewData);
+      console.log("Review submission response:", response);
       
       setSuccess(true);
-      onReviewSubmit();
+      setRating(0);
+      setReview("");
     } catch (err) {
-      setError("Failed to submit review. Please try again.");
       console.error("Review submission error:", err);
+      console.error("Server Response:", err.response?.data);
+      
+      const errorMessage = err.response?.data?.message || 
+                          err.response?.data?.error || 
+                          "Failed to submit review. Please try again.";
+      setError(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -706,13 +726,14 @@ const ReviewComponent = ({ course, onReviewSubmit }) => {
           <FaCheckCircle /> Thank you for your feedback!
         </div>
       ) : (
-        <div className="review-form">
+        <form onSubmit={handleSubmit} className="review-form">
           <div className="form-group">
             <label>Rating</label>
             <div className="rating-stars">
               {[1, 2, 3, 4, 5].map(s => (
                 <button 
                   key={s} 
+                  type="button"
                   className={`star-btn ${s <= rating ? "active" : ""}`}
                   onClick={() => setRating(s)}
                 >
@@ -732,20 +753,12 @@ const ReviewComponent = ({ course, onReviewSubmit }) => {
             ></textarea>
           </div>
           
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
+          {error && <div className="error-message">{error}</div>}
           
-          <button 
-            className="submit-review-btn" 
-            onClick={handleSubmit}
-            disabled={submitting}
-          >
+          <button type="submit" className="submit-review-btn" disabled={submitting}>
             {submitting ? "Submitting..." : "Submit Review"}
           </button>
-        </div>
+        </form>
       )}
     </div>
   );
@@ -762,7 +775,6 @@ const UserDashboard = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [error, setError] = useState(null);
   
-  // States for course content
   const [videos, setVideos] = useState([]);
   const [notes, setNotes] = useState([]);
   const [quizzes, setQuizzes] = useState([]);
@@ -773,15 +785,25 @@ const UserDashboard = () => {
     return saved ? JSON.parse(saved) : { videos: false, notes: false, assignments: false, quiz: false };
   });
 
-  const backendURL =
-  process.env.REACT_APP_API_BASE_URL || "https://clinigoal-backend.onrender.com/api";
+ const backendURL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
 
-// ✅ User data (replace with real authenticated user)
+// ✅ FIX: Robust User State Initialization
 const [user] = useState(() => {
-  // For example, get from localStorage or auth context
   const savedUser = localStorage.getItem("user");
-  return savedUser ? JSON.parse(savedUser) : { _id: "user123", name: "Anusha Hegde" };
+  if (savedUser) {
+    try {
+      const parsedUser = JSON.parse(savedUser);
+      if (parsedUser && parsedUser._id) {
+        return parsedUser;
+      }
+    } catch (e) {
+      console.error("Failed to parse user from localStorage:", e);
+    }
+  }
+  // FIX: Use a valid-looking ObjectId format for the dummy user for testing
+  return { _id: "63f8b8e9a4b7c3d2e1f0a9b8", name: "Anusha Hegde" };
 });
+
   // --- useEffect Hooks ---
 
   useEffect(() => {
@@ -809,7 +831,6 @@ const [user] = useState(() => {
     }
   }, [activeCourse]);
 
-  // Save completedSections to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('completedSections', JSON.stringify(completedSections));
   }, [completedSections]);
@@ -832,7 +853,6 @@ const [user] = useState(() => {
       const data = Array.isArray(res.data) ? res.data : (res.data.enrollments || []);
       setEnrollments(data);
 
-      // Auto move to video section if approved
       const approvedCourse = data.find((e) => e.status === "approved");
       if (approvedCourse) {
         const matched = courses.find((c) => c._id === approvedCourse.courseId || c._id === approvedCourse.courseId?._id);
@@ -909,12 +929,20 @@ const [user] = useState(() => {
 
       const fakePaymentId = "pay_dummy_" + Math.random().toString(36).substring(2, 8);
 
+      console.log("User ID:", user._id, "Course ID:", course._id);
+      
+      if (!user?._id || !course?._id) {
+        setError("User ID or Course ID is missing. Cannot enroll. Please refresh the page and try again.");
+        setLoading(prev => ({ ...prev, [course._id]: false }));
+        return;
+      }
+
       const res = await axios.post(`${backendURL}/api/enrollments`, {
-        userId: user._id, 
-        userName: user.name, 
+        userId: user._id,
         courseId: course._id,
-        courseTitle: course.title, 
-        paymentId: fakePaymentId, 
+        userName: user.name,
+        courseTitle: course.title,
+        paymentId: fakePaymentId,
         status: "pending",
       });
 
@@ -925,7 +953,7 @@ const [user] = useState(() => {
         setError("Error saving enrollment: " + (res.data.message || "Unknown error"));
       }
     } catch (err) {
-      console.error("Enrollment error:", err);
+      console.error("Enrollment error:", err.response?.data || err.message);
       const errorMessage = err.response?.data?.message || err.message || "An unknown error occurred";
       setError("Server error during enrollment: " + errorMessage);
     } finally {
@@ -1101,12 +1129,11 @@ const [user] = useState(() => {
           <div className="section-card">
             {isApproved() ? (
               <>
-                <h3>📘 {activeCourse?.title} - Assignments</h3><br></br>
+                <h3>📘 {activeCourse?.title} - Assignments</h3>
                 <AssignmentComponent onAssignmentComplete={() => {
                  markSectionComplete("assignments");
                  setActiveSection("quiz");
               }} />
-
               </> 
             ) : (
               <LockedContent section="Assignments" onBackToDashboard={() => setActiveSection("dashboard")} />
@@ -1169,7 +1196,7 @@ const [user] = useState(() => {
                 <h3>💬 Course Review</h3>
                 <ReviewComponent 
                   course={activeCourse} 
-                  onReviewSubmit={() => {}}
+                  user={user} 
                 />
               </>
             ) : (

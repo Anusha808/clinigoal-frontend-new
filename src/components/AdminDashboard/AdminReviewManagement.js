@@ -1,6 +1,6 @@
 // AdminReviewManagement.js
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api, { reviewAPI } from "../../api"; // ✅ FIXED: Correctly import default and named exports
 import {
   FaStar,
   FaTrash,
@@ -9,12 +9,6 @@ import {
   FaCalendarAlt,
 } from "react-icons/fa";
 import "./AdminReviewManagement.css";
-
-// ✅ Auto-detect environment (local or deployed)
-const backendURL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5000"
-    : "https://clinigoal-backend-yfu3.onrender.com";
 
 const AdminReviewManagement = () => {
   const [reviews, setReviews] = useState([]);
@@ -30,8 +24,22 @@ const AdminReviewManagement = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`${backendURL}/api/reviews`);
-      setReviews(response.data || []);
+      const response = await reviewAPI.getAll();
+      
+      // ✅ DETAILED LOGGING: Check what the backend actually sends
+      console.log("Full API Response from /reviews:", response);
+      console.log("Response Data:", response.data);
+
+      // ✅ ROBUST DATA HANDLING: Handle different possible response structures
+      let reviewsData = response.data;
+      if (reviewsData && reviewsData.reviews) {
+        // If the backend sends { reviews: [...] }
+        reviewsData = reviewsData.reviews;
+      }
+      
+      // Ensure we always set an array
+      setReviews(Array.isArray(reviewsData) ? reviewsData : []);
+
     } catch (err) {
       console.error("Error fetching reviews:", err);
       setError("⚠️ Failed to fetch reviews. Please try again later.");
@@ -42,12 +50,21 @@ const AdminReviewManagement = () => {
 
   const deleteReview = async (reviewId) => {
     if (!window.confirm("🗑️ Are you sure you want to delete this review?")) return;
+    
+    const originalReviews = [...reviews]; // Keep a copy in case of failure
+
+    // NOTE: This is an "optimistic update". The UI is updated immediately
+    // for a better user experience, assuming the server request will succeed.
+    setReviews((prev) => prev.filter((r) => r._id !== reviewId));
+
     try {
-      await axios.delete(`${backendURL}/api/reviews/${reviewId}`);
-      setReviews((prev) => prev.filter((r) => r._id !== reviewId));
+      // Use the specific reviewAPI.delete method for consistency
+      await reviewAPI.delete(reviewId);
     } catch (err) {
       console.error("Error deleting review:", err);
-      setError("❌ Failed to delete review. Please try again later.");
+      // If the delete fails, revert the state to its original form
+      setReviews(originalReviews);
+      setError("❌ Failed to delete review. Please try again.");
     }
   };
 

@@ -9,8 +9,14 @@ import {
   FaCog,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import API_BASE_URL from "../../api";
 import "./DashboardOverview.css";
+
+// Use environment variable or fallback
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL ||
+  (window.location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : "https://clinigoal-backend.onrender.com");
 
 const DashboardOverview = () => {
   const [stats, setStats] = useState({
@@ -22,10 +28,12 @@ const DashboardOverview = () => {
 
   const navigate = useNavigate();
 
+  // Fetch stats from backend
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/admin/stats`);
+        // ✅ Updated endpoint to include /api
+        const res = await axios.get(`${API_BASE_URL}/api/admin/stats`);
         setStats(res.data);
       } catch (err) {
         console.error("❌ Error loading stats:", err);
@@ -73,7 +81,6 @@ const DashboardOverview = () => {
       {/* Top Bar */}
       <div className="overview-topbar">
         <h2 className="overview-title">📊 Dashboard Overview</h2>
-        {/* Simple Home Icon instead of missing logo */}
         <div
           className="overview-logo"
           style={{ cursor: "pointer", fontSize: "24px" }}

@@ -1,3 +1,5 @@
+// src/components/AdminCourseManagement.js
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./AdminCourseManagement.css";
@@ -67,23 +69,30 @@ const AdminCourseManagement = () => {
 
   return (
     <div className="course-management-container">
-      <h2>📚 Manage Courses</h2>
+      <div className="page-header">
+        <h2 className="page-title">📚 Manage Courses</h2>
+        <button
+          className="add-course-btn"
+          onClick={() => {
+            setModalType("add");
+            setForm({ title: "", description: "", price: "" });
+          }}
+        >
+          ➕ Add New Course
+        </button>
+      </div>
 
-      <button
-        className="add-course-btn"
-        onClick={() => {
-          setModalType("add");
-          setForm({ title: "", description: "", price: "" });
-        }}
-      >
-        ➕ Add New Course
-      </button>
-
-      <div className="course-table-wrapper">
+      <div className="table-container">
         {loading ? (
-          <p>Loading courses...</p>
+          <div className="loading-spinner">
+            <div className="spinner"></div>
+            <p>Loading courses...</p>
+          </div>
         ) : courses.length === 0 ? (
-          <p>No courses available.</p>
+          <div className="no-courses">
+            <div className="no-courses-icon">📚</div>
+            <p>No courses available.</p>
+          </div>
         ) : (
           <table className="course-table">
             <thead>
@@ -97,39 +106,41 @@ const AdminCourseManagement = () => {
             <tbody>
               {courses.map((c) => (
                 <tr key={c._id}>
-                  <td>{c.title}</td>
-                  <td>{c.description}</td>
-                  <td>{c.price}</td>
+                  <td className="course-title-cell">{c.title}</td>
+                  <td className="course-desc-cell">{c.description}</td>
+                  <td>₹{c.price}</td>
                   <td>
-                    <button
-                      className="action-btn view"
-                      onClick={() => {
-                        setSelectedCourse(c);
-                        setModalType("view");
-                      }}
-                    >
-                      👁️ View
-                    </button>
-                    <button
-                      className="action-btn edit"
-                      onClick={() => {
-                        setSelectedCourse(c);
-                        setForm({
-                          title: c.title,
-                          description: c.description,
-                          price: c.price,
-                        });
-                        setModalType("edit");
-                      }}
-                    >
-                      ✏️ Edit
-                    </button>
-                    <button
-                      className="action-btn delete"
-                      onClick={() => handleDelete(c._id)}
-                    >
-                      🗑️ Delete
-                    </button>
+                    <div className="action-buttons">
+                      <button
+                        className="view-btn"
+                        onClick={() => {
+                          setSelectedCourse(c);
+                          setModalType("view");
+                        }}
+                      >
+                        View
+                      </button>
+                      <button
+                        className="edit-btn"
+                        onClick={() => {
+                          setSelectedCourse(c);
+                          setForm({
+                            title: c.title,
+                            description: c.description,
+                            price: c.price,
+                          });
+                          setModalType("edit");
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDelete(c._id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -189,16 +200,18 @@ const AdminCourseManagement = () => {
                   onChange={(e) => setForm({ ...form, price: e.target.value })}
                   required
                 />
-                <button type="submit" className="submit-course-btn">
-                  {modalType === "add" ? "Add Course" : "Save Changes"}
-                </button>
-                <button
-                  type="button"
-                  className="cancel-btn"
-                  onClick={() => setModalType("")}
-                >
-                  Cancel
-                </button>
+                <div className="form-actions">
+                  <button type="submit" className="submit-course-btn">
+                    {modalType === "add" ? "Add Course" : "Save Changes"}
+                  </button>
+                  <button
+                    type="button"
+                    className="cancel-btn"
+                    onClick={() => setModalType("")}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </form>
             )}
           </div>

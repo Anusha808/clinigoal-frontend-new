@@ -1,242 +1,237 @@
+/* 🌟 Page container */
 .admin-video-management {
-  padding: 30px;
-  background: linear-gradient(135deg, #f8fbff 0%, #f4fff9 100%);
-  font-family: "Poppins", sans-serif;
-  min-height: 100vh;
-}
-
-.admin-video-management h2 {
-  font-size: 2rem;
-  color: #003366;
-  font-weight: 700;
-  margin-bottom: 25px;
-}
-
-/* 🎬 Upload Form */
-.video-form {
-  background: #fff;
-  padding: 25px;
+  max-width: 1000px;
+  margin: 40px auto;
+  background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  margin-bottom: 40px;
+  padding: 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  font-family: "Poppins", sans-serif;
+  animation: fadeIn 0.8s ease;
 }
 
-.input-row {
+/* 🏷️ Page heading */
+.admin-video-management h2 {
   display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+  align-items: center;
+  gap: 10px;
+  font-size: 26px;
+  color: #1e3a8a;
+  font-weight: 600;
+  margin-bottom: 25px;
+  text-align: center;
+  justify-content: center;
 }
 
-.form-group {
-  flex: 1;
+/* 🎥 Upload Form */
+.video-form {
   display: flex;
   flex-direction: column;
+  gap: 12px;
+  margin-bottom: 30px;
+  animation: slideUp 0.8s ease;
 }
 
-.form-group label {
-  font-weight: 600;
-  color: #004080;
-  margin-bottom: 6px;
-}
-
-.form-group input[type="text"],
-.form-group input[type="file"] {
+.video-form input[type="text"],
+.video-form input[type="file"] {
   padding: 10px 14px;
+  border: 2px solid #dbeafe;
   border-radius: 10px;
-  border: 1px solid #ccc;
-  font-size: 15px;
   outline: none;
-  transition: all 0.2s ease-in-out;
-}
-
-.form-group input:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-}
-
-/* 📁 Buttons */
-.upload-btn,
-.cancel-btn {
-  margin-top: 20px;
-  border: none;
-  padding: 12px 18px;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.upload-btn {
-  background: linear-gradient(90deg, #007bff, #00b4d8);
-  color: white;
+.video-form input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 6px rgba(37, 99, 235, 0.3);
 }
 
-.upload-btn:hover {
-  background: linear-gradient(90deg, #0056b3, #0088cc);
+.video-form button {
+  padding: 12px;
+  background: linear-gradient(135deg, #2563eb, #1e3a8a);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-.cancel-btn {
-  background: #f44336;
-  color: white;
-  margin-left: 10px;
+.video-form button:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #1e40af, #1e3a8a);
+  box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
 }
 
-.cancel-btn:hover {
-  background: #d32f2f;
-}
-
-/* 📊 Progress Bar */
 .progress-bar {
-  position: relative;
-  background: #e9ecef;
-  border-radius: 10px;
   height: 12px;
-  margin-top: 15px;
-}
-
-.progress-fill {
-  background: #007bff;
-  height: 100%;
+  background: #2563eb;
+  color: #fff;
+  font-size: 12px;
   border-radius: 10px;
-  transition: width 0.4s ease;
+  text-align: center;
+  margin-top: 5px;
+  animation: progressFade 1s ease-in-out;
 }
 
-.progress-bar span {
-  position: absolute;
-  top: -25px;
-  right: 0;
-  font-size: 13px;
-  color: #007bff;
-}
-
-/* 📹 Video Table */
-.video-table-container {
-  background: #fff;
-  padding: 25px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.video-table-container h3 {
-  font-size: 1.5rem;
-  color: #004080;
-  margin-bottom: 15px;
-}
-
+/* 📂 Table section */
 .video-table {
   width: 100%;
   border-collapse: collapse;
-}
-
-.video-table thead {
-  background: #007bff;
-  color: white;
+  animation: fadeIn 0.9s ease;
 }
 
 .video-table th,
 .video-table td {
   text-align: center;
   padding: 12px 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.video-table tbody tr:hover {
-  background: #f5faff;
+.video-table th {
+  background: #f3f4f6;
+  font-weight: 600;
+  color: #1e3a8a;
+  font-size: 15px;
 }
 
-/* 🎯 Action Buttons */
-.action-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-.view-btn,
-.edit-btn,
-.delete-btn {
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
+.video-table td {
   font-size: 14px;
-  font-weight: 500;
+  color: #374151;
+}
+
+.video-table tr:hover {
+  background-color: #f9fafb;
+  transition: background 0.3s ease;
+}
+
+/* 🎬 Buttons inside table */
+.video-table button {
+  background: none;
+  border: none;
+  color: #2563eb;
   cursor: pointer;
-  color: white;
-  transition: all 0.3s ease;
+  margin: 0 4px;
+  font-size: 18px;
+  transition: all 0.2s ease;
 }
 
-.view-btn {
-  background: #17a2b8;
+.video-table button:hover {
+  transform: scale(1.2);
+  color: #1e40af;
 }
 
-.view-btn:hover {
-  background: #138496;
-}
-
-.edit-btn {
-  background: #28a745;
-}
-
-.edit-btn:hover {
-  background: #218838;
-}
-
-.delete-btn {
-  background: #dc3545;
-}
-
-.delete-btn:hover {
-  background: #c82333;
-}
-
-/* 🖼️ Modal */
+/* 🪟 Modal Preview */
 .modal {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.65);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.4s ease;
+  z-index: 999;
 }
 
 .modal-content {
-  background: white;
-  border-radius: 15px;
+  background: #fff;
   padding: 20px;
-  width: 80%;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
   max-width: 700px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  width: 95%;
+  text-align: center;
+  animation: popUp 0.4s ease;
 }
 
-.close-modal {
-  background: #f44336;
+.modal-content video {
+  border-radius: 12px;
+  max-height: 400px;
+  width: 100%;
+}
+
+.modal-content button {
+  margin-top: 12px;
+  background: #ef4444;
   color: white;
+  padding: 10px 18px;
   border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  margin-top: 10px;
+  border-radius: 10px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.close-modal:hover {
-  background: #d32f2f;
+.modal-content button:hover {
+  background: #dc2626;
+  transform: scale(1.05);
 }
 
-/* 📱 Responsive */
+/* 🌀 Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes popUp {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes progressFade {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+/* 📱 Responsive Design */
 @media (max-width: 768px) {
-  .input-row {
-    flex-direction: column;
+  .admin-video-management {
+    padding: 20px;
   }
 
-  .action-buttons {
-    flex-direction: column;
+  .video-form input,
+  .video-form button {
+    font-size: 14px;
   }
 
   .video-table th,
   .video-table td {
     font-size: 13px;
+    padding: 8px;
+  }
+
+  .modal-content video {
+    max-height: 250px;
   }
 }

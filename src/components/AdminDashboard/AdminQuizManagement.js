@@ -1,9 +1,20 @@
 // AdminQuizManagement.js
 import React, { useState, useEffect } from "react";
-import { quizAPI } from "../../api"; // ✅ Updated API import
+import { quizAPI } from "../../api";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
-import { FaPlusCircle, FaEdit, FaTrash } from "react-icons/fa";
+import { 
+  FaPlus, 
+  FaEdit, 
+  FaTrash, 
+  FaBookOpen, 
+  FaQuestion, 
+  FaSave, 
+  FaTimes, 
+  FaSpinner,
+  FaLayerGroup,
+  FaCheck
+} from "react-icons/fa";
 import "./AdminQuizManagement.css";
 
 const AdminQuizManagement = () => {
@@ -15,16 +26,16 @@ const AdminQuizManagement = () => {
   });
   const [editingQuizId, setEditingQuizId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [activeView, setActiveView] = useState("form");
 
-  // ✅ Fetch quizzes
   const fetchQuizzes = async () => {
     try {
       setLoading(true);
-      const { data } = await quizAPI.getAllQuizzes();
+      const { data } = await quizAPI.getAll();
       setQuizzes(data.quizzes || []);
     } catch (err) {
       console.error(err);
-      Swal.fire("❌ Error", "Failed to fetch quizzes.", "error");
+      Swal.fire("Error", "Failed to fetch quizzes.", "error");
     } finally {
       setLoading(false);
     }
@@ -34,7 +45,6 @@ const AdminQuizManagement = () => {
     fetchQuizzes();
   }, []);
 
-  // ✅ Form handlers
   const handleInputChange = (field, value) => setForm({ ...form, [field]: value });
   const handleQuestionChange = (value) => {
     const updated = [...form.questions];
@@ -52,24 +62,23 @@ const AdminQuizManagement = () => {
     setForm({ ...form, questions: updated });
   };
 
-  // ✅ Submit quiz (add or update)
   const handleSubmit = async (e) => {
     e.preventDefault();
     const q = form.questions[0];
 
     if (!form.title || !form.courseName || !q.question || q.options.some((o) => !o) || !q.correctAnswer) {
-      Swal.fire("⚠️ Warning", "Please fill all fields.", "warning");
+      Swal.fire("Warning", "Please fill all fields.", "warning");
       return;
     }
 
     try {
       setLoading(true);
       if (editingQuizId) {
-        await quizAPI.updateQuiz(editingQuizId, form);
-        Swal.fire("✅ Updated", "Quiz updated successfully.", "success");
+        await quizAPI.update(editingQuizId, form);
+        Swal.fire("Success", "Quiz updated successfully.", "success");
       } else {
-        await quizAPI.createQuiz(form);
-        Swal.fire("✅ Added", "Quiz added successfully.", "success");
+        await quizAPI.create(form);
+        Swal.fire("Success", "Quiz added successfully.", "success");
       }
 
       setForm({
@@ -81,13 +90,12 @@ const AdminQuizManagement = () => {
       fetchQuizzes();
     } catch (err) {
       console.error(err);
-      Swal.fire("❌ Error", "Failed to save quiz.", "error");
+      Swal.fire("Error", "Failed to save quiz.", "error");
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Edit quiz
   const handleEdit = (quiz) => {
     setForm({
       title: quiz.title,
@@ -95,91 +103,239 @@ const AdminQuizManagement = () => {
       questions: quiz.questions,
     });
     setEditingQuizId(quiz._id);
-    Swal.fire("✏️ Edit Mode", `You are editing "${quiz.title}"`, "info");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setActiveView("form");
   };
 
-  // ✅ Delete quiz
   const handleDelete = async (id) => {
-    const confirm = await Swal.fire({
+    const result = await Swal.fire({
       title: "Are you sure?",
       text: "This quiz will be deleted permanently!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonColor: "#dc3545",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Yes, delete it!"
     });
-    if (!confirm.isConfirmed) return;
-
-    try {
-      await quizAPI.deleteQuiz(id);
-      Swal.fire("🗑️ Deleted!", "Quiz removed successfully.", "success");
-      fetchQuizzes();
-    } catch (err) {
-      console.error(err);
-      Swal.fire("❌ Error", "Failed to delete quiz.", "error");
+    
+    if (result.isConfirmed) {
+      try {
+        await quizAPI.delete(id);
+        Swal.fire("Deleted!", "Quiz removed successfully.", "success");
+        fetchQuizzes();
+      } catch (err) {
+        console.error(err);
+        Swal.fire("Error", "Failed to delete quiz.", "error");
+      }
     }
   };
 
   return (
-    <div className="admin-quiz-management">
-      <motion.h2 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <FaPlusCircle className="icon" /> Quiz Management
-      </motion.h2>
+    <div className="quiz-management">
+      <div className="container">
+        <header className="page-header">
+          <h1>Quiz Management</h1>
+          <p>Create and manage course quizzes</p>
+        </header>
 
-      <motion.form className="quiz-form" onSubmit={handleSubmit} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <input type="text" placeholder="Quiz Title" value={form.title} onChange={(e) => handleInputChange("title", e.target.value)} required />
-        <input type="text" placeholder="Course Name" value={form.courseName} onChange={(e) => handleInputChange("courseName", e.target.value)} required />
-        <textarea placeholder="Question" value={form.questions[0].question} onChange={(e) => handleQuestionChange(e.target.value)} required />
+        <nav className="view-toggle">
+          <button 
+            className={`toggle-btn ${activeView === "form" ? "active" : ""}`}
+            onClick={() => setActiveView("form")}
+          >
+            <FaPlus /> {editingQuizId ? "Edit Quiz" : "New Quiz"}
+          </button>
+          <button 
+            className={`toggle-btn ${activeView === "list" ? "active" : ""}`}
+            onClick={() => setActiveView("list")}
+          >
+            <FaLayerGroup /> All Quizzes ({quizzes.length})
+          </button>
+        </nav>
 
-        {form.questions[0].options.map((opt, i) => (
-          <div key={i} className="option-row">
-            <input type="text" value={opt} placeholder={`Option ${i + 1}`} onChange={(e) => handleOptionChange(i, e.target.value)} required />
-            <label>
-              <input type="radio" name="correctAnswer" checked={form.questions[0].correctAnswer === opt} onChange={() => handleCorrectAnswerChange(opt)} />
-              Correct
-            </label>
-          </div>
-        ))}
+        {activeView === "form" && (
+          <motion.div 
+            className="form-section"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="card">
+              <div className="card-header">
+                <h2>{editingQuizId ? "Edit Quiz" : "Create New Quiz"}</h2>
+              </div>
+              
+              <form onSubmit={handleSubmit} className="quiz-form">
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label htmlFor="title">
+                      <FaBookOpen /> Quiz Title
+                    </label>
+                    <input
+                      id="title"
+                      type="text"
+                      placeholder="Enter quiz title"
+                      value={form.title}
+                      onChange={(e) => handleInputChange("title", e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label htmlFor="course">
+                      <FaBookOpen /> Course Name
+                    </label>
+                    <input
+                      id="course"
+                      type="text"
+                      placeholder="e.g., Mathematics 101"
+                      value={form.courseName}
+                      onChange={(e) => handleInputChange("courseName", e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="question">
+                    <FaQuestion /> Question
+                  </label>
+                  <textarea
+                    id="question"
+                    placeholder="Write your question here..."
+                    value={form.questions[0].question}
+                    onChange={(e) => handleQuestionChange(e.target.value)}
+                    required
+                    rows={3}
+                  />
+                </div>
 
-        <div className="form-buttons">
-          <button type="submit" disabled={loading}>{editingQuizId ? "💾 Update Quiz" : "➕ Add Quiz"}</button>
-          {editingQuizId && (
-            <button type="button" onClick={() => {
-              setEditingQuizId(null);
-              setForm({ title: "", courseName: "", questions: [{ question: "", options: ["", "", "", ""], correctAnswer: "" }] });
-              Swal.fire("❎ Edit Cancelled", "You are now in add mode.", "info");
-            }}>Cancel</button>
-          )}
-        </div>
-      </motion.form>
+                <div className="options-section">
+                  <h3>Answer Options</h3>
+                  <div className="options-grid">
+                    {form.questions[0].options.map((opt, i) => (
+                      <div key={i} className="option-group">
+                        <div className="option-header">
+                          <span className="option-label">Option {String.fromCharCode(65 + i)}</span>
+                          <label className="radio-container">
+                            <input
+                              type="radio"
+                              name="correctAnswer"
+                              checked={form.questions[0].correctAnswer === opt}
+                              onChange={() => handleCorrectAnswerChange(opt)}
+                            />
+                            <span className="checkmark">
+                              <FaCheck />
+                            </span>
+                            Correct
+                          </label>
+                        </div>
+                        <input
+                          type="text"
+                          placeholder={`Enter option ${i + 1}`}
+                          value={opt}
+                          onChange={(e) => handleOptionChange(i, e.target.value)}
+                          required
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-      <div className="quiz-table-container">
-        <h3>📂 Uploaded Quizzes</h3>
-        {loading ? <p>Loading quizzes...</p> : quizzes.length > 0 ? (
-          <table className="quiz-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Course</th>
-                <th>Questions</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {quizzes.map((quiz, idx) => (
-                <motion.tr key={quiz._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}>
-                  <td>{quiz.title}</td>
-                  <td>{quiz.courseName}</td>
-                  <td>{quiz.questions?.length || 0}</td>
-                  <td className="action-buttons">
-                    <button onClick={() => handleEdit(quiz)}><FaEdit /> Edit</button>
-                    <button onClick={() => handleDelete(quiz._id)}><FaTrash /> Delete</button>
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
-        ) : <p>No quizzes uploaded yet.</p>}
+                <div className="form-actions">
+                  <button type="submit" className="btn btn-primary" disabled={loading}>
+                    {loading ? <FaSpinner className="spinner" /> : 
+                     editingQuizId ? <><FaSave /> Update Quiz</> : <><FaPlus /> Create Quiz</>}
+                  </button>
+                  {editingQuizId && (
+                    <button 
+                      type="button" 
+                      className="btn btn-secondary"
+                      onClick={() => {
+                        setEditingQuizId(null);
+                        setForm({ 
+                          title: "", 
+                          courseName: "", 
+                          questions: [{ question: "", options: ["", "", "", ""], correctAnswer: "" }] 
+                        });
+                      }}
+                    >
+                      <FaTimes /> Cancel
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
+          </motion.div>
+        )}
+
+        {activeView === "list" && (
+          <motion.div 
+            className="list-section"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="card">
+              <div className="card-header">
+                <h2>Quiz Library</h2>
+              </div>
+              
+              {loading ? (
+                <div className="loading">
+                  <FaSpinner className="spinner" />
+                  <p>Loading quizzes...</p>
+                </div>
+              ) : quizzes.length > 0 ? (
+                <div className="quiz-list">
+                  {quizzes.map((quiz) => (
+                    <motion.div 
+                      key={quiz._id} 
+                      className="quiz-item"
+                      whileHover={{ x: 5 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      <div className="quiz-info">
+                        <h3>{quiz.title}</h3>
+                        <p className="course">{quiz.courseName}</p>
+                        <span className="question-count">
+                          {quiz.questions?.length || 0} questions
+                        </span>
+                      </div>
+                      <div className="quiz-actions">
+                        <button 
+                          className="btn-icon btn-edit"
+                          onClick={() => handleEdit(quiz)}
+                          title="Edit quiz"
+                        >
+                          <FaEdit />
+                        </button>
+                        <button 
+                          className="btn-icon btn-delete"
+                          onClick={() => handleDelete(quiz._id)}
+                          title="Delete quiz"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="empty-state">
+                  <FaQuestion className="empty-icon" />
+                  <h3>No quizzes yet</h3>
+                  <p>Create your first quiz to get started</p>
+                  <button 
+                    className="btn btn-primary"
+                    onClick={() => setActiveView("form")}
+                  >
+                    <FaPlus /> Create Quiz
+                  </button>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
       </div>
     </div>
   );

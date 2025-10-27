@@ -29,7 +29,7 @@ const AdminUserTracking = () => {
   const backendURL =
     window.location.hostname === "localhost"
       ? "http://localhost:5000"
-      : "https://clinigoal-backend.onrender.com";
+      : "https://clinigoal-backend-yfu3.onrender.com";
 
   useEffect(() => {
     fetchUsers();
