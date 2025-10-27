@@ -64,7 +64,7 @@ const Home = () => {
                 className="dropdown-item"
                 onClick={() => handleLogin("student")}
               >
-                Student
+                User
               </button>
             </div>
           )}

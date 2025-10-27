@@ -1,388 +1,188 @@
-/* 🌐 Overall Layout */
+/* 🌐 Layout */
 .user-login-page {
   display: flex;
   height: 100vh;
+  overflow: hidden;
   font-family: "Poppins", sans-serif;
-  overflow: hidden;
-  background: #f9f9f9;
 }
 
-/* 🖼️ Left Side - Image Section */
+/* 🌄 Left Image Section */
 .login-image-section {
-  position: relative;
   flex: 1;
-  width: 50%;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.login-slider-image {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transform: scale(1.1);
-  transition: opacity 1.8s ease-in-out, transform 8s ease-in-out;
-}
-
-.login-slider-image.active {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* ✨ Text Overlay on Image */
-.overlay-text {
-  position: absolute;
-  top: 50%;
-  left: 10%;
-  transform: translateY(-50%);
-  color: #fff;
-  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
-  z-index: 2;
-}
-
-.overlay-text h2 {
-  font-size: 3rem;
-  margin-bottom: 15px;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-.overlay-text p {
-  font-size: 1.2rem;
-  font-weight: 400;
-}
-
-/* 🧾 Right Side - Login Section */
-.user-login-container {
-  width: 50%;
-  background: linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 60px 0;
-  transition: all 0.5s ease;
-}
-
-/* 💳 Login Card */
-.user-login-card {
-  width: 85%;
-  max-width: 460px;
-  background: #fff;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-  padding: 80px 45px 60px; /* ✅ Added more top padding */
-  border-radius: 20px;
-  text-align: center;
-  transition: all 0.3s ease;
-  min-height: 620px; /* ✅ Slightly taller */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start; /* Keeps title up */
-}
-
-.user-login-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
-}
-
-.user-login-card h2 {
-  color: #003366;
-  margin-bottom: 60px; /* ✅ Push inputs lower */
-  font-size: 1.8rem;
-  font-weight: 700;
-}
-
-/* 🧩 Form Styles */
-.user-login-card form {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  margin-top: auto; /* ✅ Keeps form lower */
-}
-
-.user-login-card input {
-  padding: 15px 18px;
-  border: 1px solid #d3d3d3;
-  border-radius: 10px;
-  font-size: 16px;
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.user-login-card input:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
-  outline: none;
-}
-
-.user-login-card button {
-  padding: 14px;
-  background: linear-gradient(135deg, #007bff, #00b4d8);
-  border: none;
-  border-radius: 10px;
-  color: white;
-  font-weight: 600;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 10px;
-}
-
-.user-login-card button:hover {
-  background: linear-gradient(135deg, #0056b3, #0096c7);
-  transform: translateY(-2px) scale(1.03);
-}
-
-.error {
-  color: #e63946;
-  font-size: 0.95rem;
-  font-weight: 500;
-  margin-top: 5px;
-}
-
-/* 🧭 Register Link */
-.register-link {
-  margin-top: auto; /* ✅ Move link lower */
-  padding-top: 25px;
-  font-size: 1rem;
-}
-
-.register-btn {
-  color: #007bff;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.register-btn:hover {
-  text-decoration: underline;
-}
-
-/* 📱 Responsive Design */
-@media (max-width: 1000px) {
-  .user-login-page {
-    flex-direction: column;
-  }
-
-  .login-image-section,
-  .user-login-container {
-    width: 100%;
-    height: 50%;
-  }
-
-  .user-login-card {
-    width: 90%;
-    padding: 50px 30px;
-    min-height: 550px;
-  }
-
-  .overlay-text h2 {
-    font-size: 2.3rem;
-  }
-
-  .overlay-text p {
-    font-size: 1.1rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .user-login-card {
-    padding: 40px 25px;
-    min-height: 500px;
-  }
-
-  .overlay-text h2 {
-    font-size: 1.8rem;
-  }
-}
-
-.form-links {
-  margin-top: 18px;
-  font-size: 0.95rem;
-}
-
-.link-text {
-  color: #007bff;
-  cursor: pointer;
-  font-weight: 600;
-  transition: color 0.3s;
-}
-
-.link-text:hover {
-  color: #0056b3;
-}
-
-.success {
-  color: #28a745;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-.user-login-page {
-  display: flex;
-  height: 100vh;
-  font-family: "Poppins", sans-serif;
-  background: #f7faff;
-  overflow: hidden;
-}
-
-/* 🌄 Left Side Image */
-.login-image-section {
   position: relative;
-  flex: 1;
   overflow: hidden;
 }
 
 .login-slider-image {
-  position: absolute;
-  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  position: absolute;
   opacity: 0;
-  transition: opacity 1s ease-in-out;
+  transition: opacity 1.5s ease-in-out;
 }
 
 .login-slider-image.active {
   opacity: 1;
 }
 
+/* 🩵 Overlay Text */
 .overlay-text {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  color: #ffffff;
-  backdrop-filter: blur(4px);
-  background: rgba(0, 0, 0, 0.3);
-  padding: 25px 40px;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
   border-radius: 20px;
+  padding: 25px 40px;
+  color: #fff;
+  z-index: 2;
 }
 
 .overlay-text h2 {
-  font-size: 2.3rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  margin-bottom: 8px;
-  color: #fff;
 }
 
 .overlay-text h2 span {
-  color: #6df0c2;
+  color: #00aaff;
 }
 
 .overlay-text p {
-  font-size: 1rem;
+  margin-top: 10px;
+  font-size: 1.1rem;
   opacity: 0.9;
+  color: #dff6ff;
 }
 
-/* 🧾 Form Section */
+/* 🧾 Right Form Section */
 .user-login-container {
-  flex: 0.9;
+  flex: 1;
   display: flex;
-  align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #eaf6ff 0%, #f8fff9 100%);
+  align-items: center;
+  background: linear-gradient(160deg, #08102b, #0a1847);
+  position: relative;
 }
 
+/* 🌟 Login Card */
 .user-login-card {
-  background: #ffffff;
-  padding: 50px 60px;
-  border-radius: 25px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-  width: 420px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(0, 110, 255, 0.6);
+  border-radius: 18px;
+  padding: 2.5rem;
+  width: 400px;
+  box-shadow: 0 0 25px rgba(0, 110, 255, 0.3);
+  backdrop-filter: blur(10px);
+  color: #fff;
   text-align: center;
-  transition: all 0.4s ease;
+  transition: all 0.3s ease;
 }
 
 .user-login-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
+  border-color: #00aaff;
+  box-shadow: 0 0 35px rgba(0, 140, 255, 0.5);
 }
 
+/* ✨ Headings */
 .user-login-card h2 {
-  margin-bottom: 25px;
-  color: #001233;
-  font-weight: 700;
+  color: #00aaff;
+  margin-bottom: 1.2rem;
+  font-weight: 600;
 }
 
-/* ✨ Inputs */
+/* Inputs */
 .input-group {
   text-align: left;
-  margin-bottom: 18px;
+  margin-bottom: 1rem;
 }
 
 .input-group label {
   display: block;
-  margin-bottom: 6px;
-  font-weight: 500;
-  color: #333;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+  color: #aee0ff;
 }
 
 .input-group input {
   width: 100%;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1.5px solid #cfd8dc;
-  transition: border 0.3s, box-shadow 0.3s;
-}
-
-.input-group input:focus {
-  border-color: #00a6fb;
-  box-shadow: 0 0 0 3px rgba(0, 166, 251, 0.15);
-  outline: none;
-}
-
-/* 🧭 Button */
-button {
-  width: 100%;
-  padding: 12px;
-  border-radius: 12px;
-  background: linear-gradient(90deg, #00a6fb, #0095f6);
+  padding: 0.8rem;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 140, 255, 0.4);
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
-  font-size: 1.05rem;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
+  outline: none;
   transition: 0.3s;
 }
 
-button:hover {
-  background: linear-gradient(90deg, #0095f6, #00a6fb);
-  box-shadow: 0 4px 10px rgba(0, 150, 255, 0.3);
+.input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.input-group input:focus {
+  border-color: #00aaff;
+  box-shadow: 0 0 8px rgba(0, 140, 255, 0.4);
+}
+
+/* 🧭 Button */
+.user-login-card button {
+  width: 100%;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #007bff, #00aaff);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.user-login-card button:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(90deg, #0062ff, #0099ff);
+  box-shadow: 0 0 15px rgba(0, 123, 255, 0.5);
 }
 
 /* 💬 Message */
 .message {
   font-size: 0.9rem;
-  margin-bottom: 12px;
+  margin-top: 0.6rem;
   font-weight: 500;
 }
 
-.success {
-  color: #28a745;
+.error {
+  color: #ff4d4d;
 }
 
-.error {
-  color: #e63946;
+.success {
+  color: #3cffb0;
 }
 
 /* 🔗 Links */
 .form-links {
-  margin-top: 20px;
-  font-size: 0.95rem;
+  margin-top: 1rem;
+  color: #aee0ff;
+  font-size: 0.9rem;
 }
 
 .form-links span {
-  color: #007bff;
-  font-weight: 600;
   cursor: pointer;
-  transition: color 0.3s;
+  transition: 0.3s;
 }
 
 .form-links span:hover {
-  color: #0056b3;
+  color: #00aaff;
+  text-decoration: underline;
+}
+
+/* Hint */
+.login-hint {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: #aee0ff;
 }
 
 /* 📱 Responsive */
@@ -391,11 +191,19 @@ button:hover {
     flex-direction: column;
   }
 
-  .login-image-section {
-    height: 40vh;
+  .login-image-section,
+  .user-login-container {
+    flex: none;
+    width: 100%;
+    height: 50vh;
   }
 
-  .user-login-container {
-    height: 60vh;
+  .user-login-card {
+    width: 90%;
+    padding: 2rem;
+  }
+
+  .overlay-text h2 {
+    font-size: 2rem;
   }
 }
